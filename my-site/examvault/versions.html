@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamVault - Version History</title>
+<style>
+  :root {
+    --brand-teal: #388186;
+    --dark-slate: #2E2B2B;
+    --bg-light: #F4F7F7;
+    --card-bg: #FFFFFF;
+    --border-color: #D3E0E1;
+    --text-muted: #6B7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--dark-slate);
+    line-height: 1.6;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  /* Big Headline */
+  .hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: var(--dark-slate);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .project-subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--brand-teal);
+    margin-top: 10px;
+  }
+
+  /* Timeline List */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+  }
+
+  .version-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-left: 6px solid var(--brand-teal);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(46, 43, 43, 0.05);
+  }
+
+  .version-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .version-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-slate);
+  }
+
+  .launch-btn {
+    display: inline-block;
+    background-color: var(--brand-teal);
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 6px 16px;
+    border-radius: 999px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .launch-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .version-details {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .back-btn {
+    display: inline-block;
+    margin-top: 40px;
+    color: var(--brand-teal);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .back-btn:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1 class="hero-title">VERSIONS</h1>
+    <p class="project-subtitle">ExamVault</p>
+  </header>
+
+  <main class="timeline">
+
+    <!-- Version 4 -->
+    <article class="version-card">
+      <div class="version-header">
+        <h2 class="version-number">Version 1.0.0</h2>
+        <a href="./index.html" class="launch-btn">Launch Version</a>
+      </div>
+      <p class="version-details">Full realese!.</p>
+    </article>
+
+    <!-- Version 3 -->
+    <article class="version-card">
+      <div class="version-header">
+        <h2 class="version-number">Version 0.3.0</h2>
+        <a href="./v0.3.0/index3.html" class="launch-btn">Launch Version</a>
+      </div>
+      <p class="version-details">UI/UX refinement.</p>
+    </article>
+
+    <!-- Version 2 -->
+    <article class="version-card">
+      <div class="version-header">
+        <h2 class="version-number">Version 0.2.0</h2>
+        <a href="./v0.2.0/index2.html" class="launch-btn">Launch Version</a>
+      </div>
+      <p class="version-details">Added slow fade-and-blur entrances, a glow when a new folder is created, staggered card reveals and softer modals.</p>
+    </article>
+
+    <!-- Version 1 -->
+    <article class="version-card">
+      <div class="version-header">
+        <h2 class="version-number">Version 0.1.0</h2>
+        <a href="./v0.1.0/index1.html" class="launch-btn">Launch Version</a>
+      </div>
+      <p class="version-details">Prototype release of ExamVault.</p>
+    </article>
+
+  </main>
+
+  <a href="../index.html" class="back-btn">← Back to Main Hub</a>
+</div>
+
+</body>
+</html>
