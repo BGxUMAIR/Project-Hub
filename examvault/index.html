@@ -342,7 +342,7 @@ const c=$('#content');
 ['dragleave','drop'].forEach(ev=>c.addEventListener(ev,()=>c.classList.remove('drag')));
 c.addEventListener('drop',e=>{e.preventDefault();addFiles(e.dataTransfer.files)});
 /* ---------- settings / theme / motion ---------- */
-const VER='0.3.27',SKEY='examvault.settings';
+const VER='1.0.0',SKEY='examvault.settings';
 let ST={theme:'day',motion:'some'};
 try{ST={...ST,...JSON.parse(localStorage.getItem(SKEY)||'{}')}}catch(e){}
 const saveSt=()=>{try{localStorage.setItem(SKEY,JSON.stringify(ST))}catch(e){}};
