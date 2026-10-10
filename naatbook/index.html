@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Master Naat Book</title>
+    <script>
+(function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    var theme = null;
+    try { theme = localStorage.getItem('naatbook-theme'); } catch (e) {}
+    if (['light', 'dark', 'emerald', 'sepia'].indexOf(theme) < 0) theme = 'emerald';
+    d.setAttribute('data-theme', theme);
+    var small = window.matchMedia('(max-width: 767px)').matches;
+    var touch = window.matchMedia('(pointer: coarse)').matches;
+    d.setAttribute('data-view', (small || touch) ? 'mobile' : 'desktop');
+})();
+
+    </script>
+    <style>
+/* =====================================================================
+   THEME TOKENS
+   Emerald = the original palette, unchanged (default).
+   ===================================================================== */
+:root,
+html[data-theme="emerald"] {
+    color-scheme: light;
+    --bg-page: #f5f7fa;
+    --bg-page-desktop: #dcdde1;
+    --bg-container: #ffffff;
+    --bg-panel: #f8f9fa;
+    --bg-control: #eef2f3;
+    --border-control: #dcdde1;
+    --text: #111111;
+    --text-heading: #2c3e50;
+    --text-muted: #7f8c8d;
+    --text-on-accent: #ffffff;
+    --accent: #16a085;
+    --accent-dark: #117a65;
+    --hover: #d35400;
+    --link: #2980b9;
+    --line: #eef2f3;
+    --line-strong: #bdc3c7;
+    --shadow: rgba(0, 0, 0, 0.15);
+}
+html[data-theme="light"] {
+    color-scheme: light;
+    --bg-page: #f3f4f6;
+    --bg-page-desktop: #e2e5ea;
+    --bg-container: #ffffff;
+    --bg-panel: #f7f8fa;
+    --bg-control: #eceef2;
+    --border-control: #d8dce3;
+    --text: #1a1d23;
+    --text-heading: #1f2937;
+    --text-muted: #6b7280;
+    --text-on-accent: #ffffff;
+    --accent: #2f5d8a;
+    --accent-dark: #244a70;
+    --hover: #b45309;
+    --link: #1d6fb8;
+    --line: #eceef2;
+    --line-strong: #c5cad3;
+    --shadow: rgba(15, 23, 42, 0.14);
+}
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg-page: #0f1115;
+    --bg-page-desktop: #090a0d;
+    --bg-container: #181b21;
+    --bg-panel: #1e222a;
+    --bg-control: #242933;
+    --border-control: #333a47;
+    --text: #e6e8ec;
+    --text-heading: #f2f4f7;
+    --text-muted: #9aa3b2;
+    --text-on-accent: #04211a;
+    --accent: #2ec4a2;
+    --accent-dark: #25a789;
+    --hover: #f4b942;
+    --link: #6db4ff;
+    --line: #2a303b;
+    --line-strong: #3d4555;
+    --shadow: rgba(0, 0, 0, 0.55);
+}
+html[data-theme="sepia"] {
+    color-scheme: light;
+    --bg-page: #e9ddc5;
+    --bg-page-desktop: #d8c8a5;
+    --bg-container: #f8efdc;
+    --bg-panel: #f0e3c6;
+    --bg-control: #eadcbc;
+    --border-control: #d3bf94;
+    --text: #3b2a1b;
+    --text-heading: #2f2014;
+    --text-muted: #77603f;
+    --text-on-accent: #fffaf0;
+    --accent: #8a5a22;
+    --accent-dark: #6d4519;
+    --hover: #bb3f0c;
+    --link: #8a4b1e;
+    --line: #e4d3ae;
+    --line-strong: #cdb88a;
+    --shadow: rgba(70, 45, 15, 0.28);
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    position: relative;
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+button { font-family: inherit; }
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Switching view/theme must never animate the whole page */
+html.no-transition *,
+html.no-transition *::before,
+html.no-transition *::after {
+    transition: none !important;
+}
+
+/* Top-left brand */
+.brand-name {
+    position: absolute;
+    top: 55px;
+    left: 15px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    font-family: 'Georgia', Garamond, serif;
+    transition: color 0.35s ease;
+}
+
+/* =====================================================================
+   TOP-RIGHT TOOLBAR: theme dots + view switcher
+   ===================================================================== */
+.toolbar {
+    position: fixed;
+    top: 10px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 1000;
+}
+.view-toggle-container,
+.theme-switch {
+    display: flex;
+    background: var(--bg-control);
+    padding: 2px;
+    border-radius: 20px;
+    border: 1px solid var(--border-control);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+.toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 15px;
+    text-transform: uppercase;
+    transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+.toggle-btn.active {
+    background: var(--accent);
+    color: var(--text-on-accent);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.theme-dot {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    -webkit-tap-highlight-color: transparent;
+}
+.theme-dot span {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.theme-dot:hover span { transform: scale(1.12); }
+.theme-dot[aria-pressed="true"] span {
+    box-shadow: 0 0 0 2px var(--bg-control), 0 0 0 4px var(--accent);
+}
+.theme-dot[data-theme-btn="light"] span   { background: #ffffff; }
+.theme-dot[data-theme-btn="dark"] span    { background: #181b21; border-color: rgba(255, 255, 255, 0.35); }
+.theme-dot[data-theme-btn="emerald"] span { background: #16a085; }
+.theme-dot[data-theme-btn="sepia"] span   { background: #d9bf8f; }
+
+/* =====================================================================
+   NAVIGATION INDEX TOGGLE BUTTON
+   Mobile: pinned bottom-left. Desktop: pinned top-left.
+   ===================================================================== */
+.index-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    position: fixed;
+    left: 15px;
+    bottom: 20px;
+    z-index: 1000;
+    background: var(--accent);
+    color: var(--text-on-accent);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+.index-toggle-btn:hover {
+    background: var(--accent-dark);
+    transform: scale(1.03);
+}
+
+/* =====================================================================
+   PAGE CONTAINER
+   ===================================================================== */
+.container {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    background: var(--bg-container);
+    padding: 60px 20px 30px 20px;
+    box-sizing: border-box;
+    transition: background-color 0.35s ease, box-shadow 0.35s ease;
+}
+h1 {
+    text-align: center;
+    color: var(--text-heading);
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 15px;
+    margin-top: 20px;
+    font-size: 28px;
+    transition: color 0.35s ease, border-color 0.35s ease;
+}
+.content-layout {
+    --side-w: 300px;
+    --side-gap: 30px;
+    display: block;
+}
+
+/* =====================================================================
+   NAVIGATION INDEX PANEL
+   Mobile (default): floating sheet above the toggle button.
+   Only transform/opacity are animated, so it stays on the GPU.
+   ===================================================================== */
+.index-box {
+    position: fixed;
+    bottom: 75px;
+    left: 15px;
+    right: 15px;
+    max-height: 55vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    z-index: 999;
+    background: var(--bg-container);
+    padding: 20px 15px;
+    border-left: 5px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 -5px 25px var(--shadow), 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    will-change: transform, opacity;
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease,
+                visibility 0s linear 0s, background-color 0.35s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.content-layout.sidebar-collapsed .index-box {
+    transform: translateY(24px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease,
+                visibility 0s linear 0.35s, background-color 0.35s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.index-box h3 {
+    margin-top: 0;
+    color: var(--accent);
+    font-size: 18px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+    transition: color 0.35s ease, border-color 0.35s ease;
+}
+
+/* ---- Accordion tree ---- */
+.nav-tree, .nav-sub, .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.acc-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 4px;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-heading);
+    font-size: 15px;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.25s ease, border-color 0.35s ease;
+}
+.acc-head:hover .acc-title { color: var(--hover); }
+.acc-title {
+    flex: 1;
+    min-width: 0;
+    font-weight: 700;
+    transition: color 0.25s ease;
+}
+.acc--top > .acc-head {
+    color: var(--accent);
+    font-size: 16px;
+}
+.acc-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.35s ease;
+}
+.chev {
+    flex: none;
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.acc.open > .acc-head .chev { transform: rotate(45deg); }
+
+/* Smooth auto-height collapse: animates grid row 0fr -> 1fr (no JS measuring,
+   no oversized max-height guess, so the speed always matches the content). */
+.acc-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.acc.open > .acc-body { grid-template-rows: 1fr; }
+.acc-inner {
+    min-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: visibility 0s linear 0.32s;
+}
+.acc.open > .acc-body > .acc-inner {
+    visibility: visible;
+    transition-delay: 0s;
+}
+.nav-sub {
+    margin: 4px 0 6px 6px;
+    padding-left: 12px;
+    border-left: 2px solid var(--line);
+    transition: border-color 0.35s ease;
+}
+.nav-sub .acc-head { border-bottom-color: transparent; }
+.nav-list li + li { border-top: 1px solid var(--line); transition: border-color 0.35s ease; }
+.nav-link {
+    display: block;
+    padding: 10px 6px;
+    color: var(--link);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.4;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+.nav-link:hover { color: var(--hover); }
+.nav-empty {
+    margin: 4px 6px 10px;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+/* =====================================================================
+   NAAT BLOCKS
+   ===================================================================== */
+.naat-block {
+    padding: 35px 0;
+    border-bottom: 2px dashed var(--line);
+    text-align: center;
+    scroll-margin-top: 56px;
+    transition: border-color 0.35s ease;
+}
+.naat-title {
+    color: var(--text-heading);
+    font-size: 22px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    padding: 0 5px;
+    transition: color 0.35s ease;
+}
+.naat-author {
+    color: var(--text-muted);
+    margin-top: 0;
+    font-style: italic;
+    margin-bottom: 20px;
+    font-size: 14px;
+    transition: color 0.35s ease;
+}
+audio {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 25px;
+}
+
+/* ---- Section headings (Naats / Manqabats / Salam) ---- */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 44px 0 0;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    scroll-margin-top: 56px;
+    transition: color 0.35s ease;
+}
+.section-title::before,
+.section-title::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: var(--line-strong);
+    transition: background-color 0.35s ease;
+}
+.section-title:first-child { margin-top: 0; }
+.section-empty {
+    margin: 0;
+    padding: 28px 0 12px;
+    text-align: center;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text-muted);
+    transition: color 0.35s ease;
+}
+/* A naat with no author/audio line: keep the lyrics from touching the title */
+.naat-title + .lyrics-wrap { margin-top: 16px; }
+.naat-title + audio { margin-top: 12px; }
+
+/* ---- Lyrics ---- */
+.lyrics {
+    font-size: 22px;
+    line-height: 2.1;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    font-weight: 500;
+    transition: color 0.35s ease;
+}
+.lyrics:focus { outline: none; }
+.lyrics p { margin: 0 0 25px 0; }
+.version-divider {
+    margin: 35px 0 25px 0;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 2px dashed var(--line-strong);
+    padding-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.35s ease, border-color 0.35s ease;
+}
+
+/* Preview clip: JS sets the exact max-height (4 lines + half of line 5).
+   The fallback keeps the first paint close to that before JS measures. */
+.lyrics-clip {
+    position: relative;
+    overflow: hidden;
+    overflow-anchor: none;
+}
+.js .lyrics-wrap[data-state="collapsed"] .lyrics-clip { max-height: 15rem; }
+.lyrics-clip.is-animating {
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Fade into the card background so it blends with every theme */
+.lyrics-clip::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: clamp(4.5rem, 45%, 6rem);
+    background: linear-gradient(to bottom, transparent, var(--bg-container));
+    background: linear-gradient(to bottom,
+        color-mix(in srgb, var(--bg-container) 0%, transparent) 0%,
+        color-mix(in srgb, var(--bg-container) 55%, transparent) 55%,
+        color-mix(in srgb, var(--bg-container) 86%, transparent) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.lyrics-wrap[data-state="collapsed"] .lyrics-clip::after { opacity: 1; }
+
+/* Minimal text buttons (no box). Show and Hide share one grid cell so
+   swapping them never shifts the layout. */
+.lyrics-actions {
+    display: grid;
+    justify-items: center;
+}
+.lyrics-wrap[data-state="static"] .lyrics-actions { display: none; }
+.lyrics-btn {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    opacity: 1;
+    visibility: visible;
+    transition: color 0.25s ease, opacity 0.25s ease, visibility 0s linear 0s;
+}
+.lyrics-btn:hover { color: var(--hover); }
+.lyrics-btn .chev { transform: rotate(45deg); margin-top: -3px; }
+.lyrics-btn.lyrics-less .chev { transform: rotate(225deg); margin-top: 3px; }
+.lyrics-wrap[data-state="collapsed"] .lyrics-less,
+.lyrics-wrap[data-state="expanded"] .lyrics-more {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: color 0.25s ease, opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+
+.back-to-top {
+    display: block;
+    margin: 25px auto 0 auto;
+    width: 160px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-muted);
+    background: var(--bg-control);
+    text-decoration: none;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: color 0.25s ease, background-color 0.25s ease;
+}
+.back-to-top:hover {
+    background: var(--line-strong);
+    color: var(--text-heading);
+}
+
+/* =====================================================================
+   DESKTOP VIEW (book mode)
+   Sidebar sits beside the text. Opening/closing only moves things with
+   transform/opacity, so the lyrics never re-wrap or reflow mid-animation.
+   ===================================================================== */
+html[data-view="desktop"] body { background-color: var(--bg-page-desktop); }
+html[data-view="desktop"] .index-toggle-btn {
+    top: 10px;
+    left: 15px;
+    bottom: auto;
+    padding: 7px 16px;
+    font-size: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+html[data-view="desktop"] .index-toggle-btn:hover { transform: none; }
+html[data-view="desktop"] .container {
+    max-width: 1050px;
+    margin: 30px auto;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px var(--shadow);
+}
+html[data-view="desktop"] h1 {
+    font-size: 24px;
+    margin-top: 10px;
+}
+html[data-view="desktop"] .content-layout {
+    display: grid;
+    grid-template-columns: var(--side-w) minmax(0, 1fr);
+    column-gap: var(--side-gap);
+    align-items: start;
+    margin-top: 20px;
+}
+html[data-view="desktop"] .index-box {
+    position: sticky;
+    top: 20px;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: var(--side-w);
+    max-height: calc(100vh - 80px);
+    padding: 20px;
+    background: var(--bg-panel);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    will-change: auto;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease,
+                visibility 0s linear 0s, background-color 0.35s ease,
+                border-color 0.35s ease;
+}
+html[data-view="desktop"] .content-layout.sidebar-collapsed .index-box {
+    transform: translateX(-18px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease,
+                visibility 0s linear 0.35s, background-color 0.35s ease,
+                border-color 0.35s ease;
+}
+html[data-view="desktop"] .naats-wrapper {
+    min-width: 0;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+/* Sidebar closed: slide the text to stay centered in the card */
+html[data-view="desktop"] .content-layout.sidebar-collapsed .naats-wrapper {
+    transform: translateX(calc((var(--side-w) + var(--side-gap)) / -2));
+}
+html[data-view="desktop"] .nav-link { font-size: 14px; padding: 9px 6px; }
+html[data-view="desktop"] .naat-block { padding: 20px 0 40px 0; }
+html[data-view="desktop"] .naat-block:first-child { padding-top: 0; }
+html[data-view="desktop"] .naat-title { font-size: 20px; }
+html[data-view="desktop"] .lyrics {
+    font-size: 20px;
+    line-height: 1.8;
+    font-weight: 500;
+    color: var(--text-heading);
+}
+html[data-view="desktop"] audio { max-width: 450px; }
+html[data-view="desktop"] .back-to-top { display: none; }
+
+/* =====================================================================
+   RESPECT REDUCED-MOTION
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="brand-name">Umair</div>
+
+<div class="toolbar">
+    <div class="theme-switch" role="group" aria-label="Background theme">
+        <button type="button" class="theme-dot" data-theme-btn="light" aria-pressed="false" aria-label="Light theme" title="Light"><span></span></button>
+        <button type="button" class="theme-dot" data-theme-btn="dark" aria-pressed="false" aria-label="Night theme" title="Night"><span></span></button>
+        <button type="button" class="theme-dot" data-theme-btn="emerald" aria-pressed="false" aria-label="Emerald theme" title="Emerald"><span></span></button>
+        <button type="button" class="theme-dot" data-theme-btn="sepia" aria-pressed="false" aria-label="Stage sepia theme" title="Stage / Sepia"><span></span></button>
+    </div>
+    <div class="view-toggle-container" role="group" aria-label="Layout">
+        <button id="btn-mobile" type="button" class="toggle-btn" data-view-btn="mobile" aria-pressed="false">📱 Mobile</button>
+        <button id="btn-desktop" type="button" class="toggle-btn" data-view-btn="desktop" aria-pressed="false">💻 Desktop</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <h1>📖 My Naat Book</h1>
+
+    <button id="btn-toggle-index" type="button" class="index-toggle-btn" aria-expanded="false" aria-controls="indexBox">📂 Show Navigation Index</button>
+
+    <div class="content-layout sidebar-collapsed" id="contentLayout">
+
+        <div class="index-box" id="indexBox">
+            <h3>Navigation Index</h3>
+            <nav aria-label="Naat index">
+            <ul class="nav-tree">
+                <li class="acc acc--top open">
+                        <button type="button" class="acc-head" aria-expanded="true" aria-controls="acc-naats">
+                            <span class="acc-title">Naats</span><span class="acc-count">17</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-naats"><div class="acc-inner">
+                            <ul class="nav-sub">
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-naats-ala">
+                            <span class="acc-title">Ala Hazrat (Ahmad Raza Khan)</span><span class="acc-count">8</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-naats-ala"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#mahak">Unki Mahak Ne Dil Ke Gunche Khila Diye Hai</a></li>
+                                <li><a class="nav-link" href="#aula">Sabse Aula Wo Aala Hamara Nabi</a></li>
+                                <li><a class="nav-link" href="#chamak">Chamak Tujhse Paate Hain Sab Paane Waale</a></li>
+                                <li><a class="nav-link" href="#joodo">Wah Kya Joodo Karam Hain Shahe Bat-ha Tera</a></li>
+                                <li><a class="nav-link" href="#yakta">Mustafa-E-Zaat-E-Yakta Aap Hain</a></li>
+                                <li><a class="nav-link" href="#koyikyajane">Koyi Kya Jane Jo Tum Ho Khuda Hi Jaane Kya Tum Ho</a></li>
+                                <li><a class="nav-link" href="#zaminozamaan">Zamino Zamaan Tumhare Liye</a></li>
+                                <li><a class="nav-link" href="#sayyid">Sayyid E Kawnayn Sultan E Jahan (Lips Apart)</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-naats-mufti">
+                            <span class="acc-title">Mufti E Azam (Mustafa Raza Khan)</span><span class="acc-count">2</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-naats-mufti"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#sojaon">Main So Jaon Ya Mustafa Kehte Kehte</a></li>
+                                <li><a class="nav-link" href="#sham">Tu Sham E Risalat Hai</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-naats-tajush">
+                            <span class="acc-title">Tajush Shariah (Akhtar Raza Khan)</span><span class="acc-count">6</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-naats-tajush"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#zindagi">Zindagi Ye Nahi Hai Kisi Ke Liye</a></li>
+                                <li><a class="nav-link" href="#daagh">Daagh E Furqate Taiba Qalb Muzmahil Jaata</a></li>
+                                <li><a class="nav-link" href="#Munawwar">Munawwar Meri Aankho Ko Mere Shamshudduha Kar De</a></li>
+                                <li><a class="nav-link" href="#kaanp">Har Nazar Kaanp Utthegi Mehshar Ke Din</a></li>
+                                <li><a class="nav-link" href="#ghesue">Chand Se Unke Chehre Par Ghesue Mushk Faam Do</a></li>
+                                <li><a class="nav-link" href="#bakhte">Bakhte Kufta Ne Mujhe Roze Pe Jaane Na Diya</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-naats-others">
+                            <span class="acc-title">Others</span><span class="acc-count">1</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-naats-others"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#yun">Ham Apne Nabi Paak Se Yun Pyaar Karenge</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                </ul>
+                        </div></div>
+                    </li>
+                <li class="acc acc--top">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-manqabats">
+                            <span class="acc-title">Manqabats</span><span class="acc-count">3</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-manqabats"><div class="acc-inner">
+                            <ul class="nav-sub">
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-manqabat-gause">
+                            <span class="acc-title">Gause Azam</span><span class="acc-count">2</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-manqabat-gause"><div class="acc-inner">
+                              <ul class="nav-list">
+                                <li><a class="nav-link" href="#Astaan">Astaan Hai Ye Kis Shaahe Zeeshan Ka</a></li>
+                                <li><a class="nav-link" href="#khudakefazl">Khuda Ke Fazl Se Hum Par Hai Saaya Ghous E Azam Ka</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-manqabat-garib">
+                            <span class="acc-title">Khawaja Garib Nawaz (Sultan E Hind)</span><span class="acc-count">1</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-manqabat-garib"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#kursi">Kursi Par Koy Bhi Baithe</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                </ul>
+                        </div></div>
+                    </li>
+                <li class="acc acc--top">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-salam">
+                            <span class="acc-title">Salam</span><span class="acc-count">2</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-salam"><div class="acc-inner">
+                            <ul class="nav-sub">
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-salam-jaan">
+                            <span class="acc-title">Mustafa Jaan E Rahmat</span><span class="acc-count">1</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-salam-jaan"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#mustafajane">Short Version</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                    <li class="acc">
+                        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-salam-nabi">
+                            <span class="acc-title">Ya Nabi Salam Alaika</span><span class="acc-count">1</span><i class="chev" aria-hidden="true"></i>
+                        </button>
+                        <div class="acc-body" id="acc-salam-nabi"><div class="acc-inner">
+                            <ul class="nav-list">
+                                <li><a class="nav-link" href="#yanabisalam">Short Version</a></li>
+                            </ul>
+                        </div></div>
+                    </li>
+                </ul>
+                        </div></div>
+                    </li>
+            </ul>
+            </nav>
+        </div>
+
+        <div class="naats-wrapper" id="naatsContainer">
+
+            <h2 class="section-title" id="section-naats">Naats</h2>
+
+            <!-- NAAT 1 -->
+            <div id="zindagi" class="naat-block">
+                <h2 class="naat-title">Zindagi Ye Nahi Hai Kisi Ke Liye</h2>
+                <p class="naat-author">Written by: Tajush Shariah</p>
+                <audio controls preload="none"><source src="audio-copyrighted/zindagi.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-zindagi" tabindex="-1">
+            <p>Zindagi Ye Nahi Hai Kisi Ke Liye<br>
+            Zindagi Hai Nabi Ki Nabi Ke Liye</p>
+            <p>Nasamajh Marte Hai Zindagi Ke Liye<br>
+            Jeena Marna Hai Sab Kuch Nabi Ke Liye</p>
+            <p>Chandni Chaar Din Hai Sabhi Ke Liye<br>
+            Hai Sada Chaand Abdun Nabi Ke Liye</p>
+            <p>Anta Feehim Ke Daaman Me Munkir Bhi Hai<br>
+            Hum Raha Ishrat E Daaimi Ke Liye</p>
+            <p>Aish Kar Lo Yaha Munkiro Chaar Din<br>
+            Mar Ke Tarso Ge Is Zindagi Ke Liye</p>
+            <p>Daag E Ishq E Nabi Le Chalo Qabr Me<br>
+            Hai Charaag E Lahad Raushni Ke Liye</p>
+            <p>Naqshe Paa E Sagaan E Nabi Dekhiye<br>
+            Ye Pata Hai Bohat Rahbari Ke Liye</p>
+            <p>Maslak E Ala Hazrat Salamat Raha<br>
+            Ek Pehchan Deen E Nabi Ke Liye</p>
+            <p>Maslak E Ala Hazrat Pe Qaaim Raho<br>
+            Zindagi Di Gayi Hai Isi Ke Liye</p>
+            <p>Sulh E Kulli Nabi Ka Nahi Sunniyo<br>
+            Sunni Muslim Hai Saccha Nabi Ke Liye</p>
+            <p>Wo Bulaate Hai Koi Yeh Aawaz De<br>
+            Dam Me Jaa Pahuchu Mai Haaziri Ke Liye</p>
+            <p>Aye Naseem E Saba Un Se Keh De Shaha<br>
+            Muztarib Hai Gadaa Haaziri Ke Liye</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-zindagi">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-zindagi">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 2 -->
+            <div id="daagh" class="naat-block">
+                <h2 class="naat-title">Daagh E Furqate Taiba Qalb Muzmahil Jaata</h2>
+                <p class="naat-author">Written by: Tajush Shariah</p>
+                <audio controls preload="none"><source src="audio-copyrighted/daagh.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-daagh" tabindex="-1">
+            <p>Daagh-e-furqate Taiba Qalb Muzmahil Jaata<br>
+            Kaash Gumbade Khazraa Dekhne Ko Mil Jaata</p>
+            <p>Mera Dam Nikal Jaata Unke Aastane Par<br>
+            Unke Aastaane Ki Khaak Mai Mein Mil Jaata</p>
+            <p>Mere Dil Se Dhul Jaata Daaghe Furqate Taiba<br>
+            Taiba Mai Fanaa Ho Kar Taiba Mai Hi Mil Jaata</p>
+            <p>Maut Le Ke Aa Jaati Zindagi Madine Mein<br>
+            Maut Se Gale Mil Kar Zindagi Mein Mil Jaata</p>
+            <p>Khuld Zaare Taiba Ka Is Tarha Safar Hota<br>
+            Peeche Peeche Sar Jaata Aage Aage Dil Jaata</p>
+            <p>Dil Pe Jab Kiran Parti Unke Sabz Gumbad Ki<br>
+            Uski Sabz Rangat Se Baagh Ban Ke Khil Jaata</p>
+            <p>Furqate Madina Ne Woh Diye Mujhe Sadme<br>
+            Koh Par Agar Padte Koh Bhi To Hil Jaata</p>
+            <p>Dil Pe Woh Qadam Rakhte Naqshe Paa Yeh Dil Banta<br>
+            Yaa To Khaak-e-paa Ban Kar Paa Se Muttasil Jaata</p>
+            <p>Un Ke Dar Pe Akhtar Ki Hasratein Hui Poori<br>
+            Saaile Dare Aqdas Kaise Munfail Jaata</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-daagh">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-daagh">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 3 -->
+            <div id="Munawwar" class="naat-block">
+                <h2 class="naat-title">Munawwar Meri Aankho Ko Mere Shamshudduha Kar De</h2>
+                <p class="naat-author">Written by: Tajush Shariah</p>
+                <audio controls preload="none"><source src="audio-copyrighted/munawwar.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-Munawwar" tabindex="-1">
+            <p>Munawwar Meri Aankho Ko Mere Shamshudduha Kar De<br>
+            Ghamo Ki Dhoop Me Wo Saayae Zulfe Dota Kar De</p>
+            <p>Jahaan Bani Ataa Kar De Bhari Jannat Hiba Kar De<br>
+            Nabi Mukhtare Qul Hai Jiss Ko Jo Chahe Ataa Kar De</p>
+            <p>Jahan Me Unki Chalti Hai Wo Dam-me Kya Se Kya Kar De<br>
+            Jameen Ko Aasmaa Kar De Suraiya Ko Sara Kar De</p>
+            <p>Fazaa Me Udne Waale Yu Na Itraye Nida Kar De<br>
+            Wo Jab Chahe Jise Chahe Usme Farma Rawa Kar De</p>
+            <p>Meri Mushkil Ko Yu Aasaa Mere Muskil Kusha Kar De<br>
+            Har Aik Mauje Balaa Ko Mere Maula Nakhuda Kar De</p>
+            <p>Ataa Ho Bekhudi Mujhko Khudi Meri Hawa Kar De<br>
+            Mujhe Yu Apni Ulfat Me Mere Maula Fanaa Kar De</p>
+            <p>Jahaan Me Aam Paighame Shahe Ahmad Raza Kar De<br>
+            Palat Kar Peeche Dekhe Fir Se Tajdeede Wafa Kar De</p>
+            <p>Nabi Se Jo Ho Begana Use Dil Se Juda Kar De<br>
+            Pidar Madar Biradar Maalo Jaan Un Par Fida Kar De</p>
+            <p>Kisi Ko Wo Hasaate Hain Kisi Ko Wo Rulaate Hain<br>
+            Wo Yu Hi Aazmate Hain Wo Ab To Faisla Kar De</p>
+            <p>Gile Taibah Me Mil Jau Gulome Milke Khiljau<br>
+            Hayaate Jaavedaani Se Mujhe Yu Aashna Kar De</p>
+            <p>Mujhe Kya Fikr Ho Akhtar Mere Yaawar Hain Wo Yaawar<br>
+            Balao Ko Meri Jo Khud Giraftare Balaa Kar De</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-Munawwar">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-Munawwar">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 4 -->
+            <div id="mahak" class="naat-block">
+                <h2 class="naat-title">Unki Mahak Ne Dil Ke Gunche Khila Diye Hai</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/mahak.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-mahak" tabindex="-1">
+            <p>Unki Mahak Ne Dil Ke Gunche Khila Diye Hai<br>
+            Jis Raah Chal Diye Kunche Basa Diye Hai.</p>
+            <p>Jab Aa Gayi Hai Joshe Rehmat Per Unki Ankhen<br>
+            Jalte Buja Diye Hai, Rote Hansa Diye Hai.</p>
+            <p>Ek Dil Hamara Kya Hai, Aazaar Uska Kitna<br>
+            Tumne To Chalte Phirte Murde Jila Diye Hai.</p>
+            <p>Unke Nisar Koi Kaisi Hi Ranj May Ho<br>
+            Jab Yaad Aa Gaye Hai Sab Gam Bhoola Diye Hai.</p>
+            <p>Humse Faqir Bhi Abb Feri Ko Oothte To Honge,<br>
+            Abb To Gani Ke Dar Pe Bistar Jama Diye Hai.</p>
+            <p>Asra May Guzre Jis Dam Baide Pe Qudsiyo Ke<br>
+            Hone Lagi Salami Parcham Jhooka Diye Hai.</p>
+            <p>Aane Do Ya Doobo Do Abb To Tumhari Jaanib<br>
+            Kasti Tumhi Pe Chhodi Lanagr Ootha Diye Hai.</p>
+            <p>Dulha Se Itna Keh Do Pyare Sawari Roko<br>
+            Mushkil May Hai Baraati Purkhaar Wadiye Hai.</p>
+            <p>Allah Kya Jahannam Abb Na Shard Hoga<br>
+            Ro Ro Ke Mustafa Ne Dariya Baha Diye Hai.</p>
+            <p>Mere Karim Se Gar Khatra Kisi Ne Manga<br>
+            Dariye Baha Diye Hai Dur Be Baha Diye Hai</p>
+            <p>Mulke Shuqan Ke Shahi Tumko Raza Mussllam<br>
+            Jis Simt Aa Gaye Ho Sikke Bitha Diya Hai</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-mahak">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-mahak">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 5 -->
+            <div id="aula" class="naat-block">
+                <h2 class="naat-title">Sabse Aula Wo Aala Hamara Nabi</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/aula.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-aula" tabindex="-1">
+            <p>Sabse Aula Wo A'ala Hamara Nabi<br>
+            Sabse Baala Wo Waala Hamara Nabi</p>
+            <p>Apne Maula Ka Pyara Hamara Nabi<br>
+            Dono A'alam Ka Dulha Hamara Nabi</p>
+            <p>Bazme Aakhir Ka Shamae Faraouza Hua<br>
+            Noor-e-awwal Ka Jalwah Hamara Nabi</p>
+            <p>Jis Ko Shaayaan Hai Arshe Khuda Par Juloos<br>
+            Hai Woh Sultaane Waala Hamaara Nabi</p>
+            <p>Bujh Gayi Jiske Aage Sabhi Mashaley<br>
+            Shama'a Woh Le Kar Aaya Hamara Nabi</p>
+            <p>Jiske Talwon Ka Dhovan Hai Aabe Hayaat<br>
+            Hain Wo Jaane Maseeha Hamara Nabi</p>
+            <p>Arsho Kursi Ki Thi Aainah Bandiyaan<br>
+            Su-e Haqq Jab Sidhaara Hamaara Nabi</p>
+            <p>Khalq Se Auliyah, Auliyah Se Rasool,<br>
+            Aur Rasoolon Se A'ala Hamara Nabi</p>
+            <p>Husn Khaata Hain Jinke Namak Ki Qasam<br>
+            Woh Maleehe Dilaara Hamara Hamara Nabi</p>
+            <p>Zikr Sab Pheeke Jab Tak Na Mazkur Ho<br>
+            Namakeen Husn Waala Hamara Nabi</p>
+            <p>Jiski Do Boond Hain Kausaer O Salsabeel<br>
+            Hain Wo Rehmat Ka Dariya Hamara Nabi</p>
+            <p>Jaise Sab Ka Khuda Aik Hai Waise Hi,<br>
+            Inka Unka Tumhara Hamara Nabi</p>
+            <p>Karno Badli Rasoolo Ki Hoti Rahi<br>
+            Chaand Badli Ka Nikla Hamara Nabi</p>
+            <p>Kaun Deeta Hain Dene Ko Muh Chahiye<br>
+            Deene Waala Hai Sachha Hamara Nabi</p>
+            <p>Saare Achhon Me Achha Samajhiye Jise,<br>
+            Hain Us Achhe Se Achha Hamara Nabi</p>
+            <p>Kya Khabar Kitne Taare Khile Chup Gaye<br>
+            Par Na Doobe Na Dooba Hamara Nabi</p>
+            <p>Mulke Qaunain Mein Ambiya Taajdaar<br>
+            Taajdaro Ka Aaqa Hamara Nabi</p>
+            <p>La Makaa Tak Ujalaj Hai Jisko Wo Hain<br>
+            Har Makaa Ka Ujala Hamara Nabi</p>
+            <p>Saare Uncho Mein Uncha Samajhiye Jise<br>
+            Hai Uss Unche Se Uncha Hamara Nabi</p>
+            <p>Ambiya Se Karun Arz Kyon Maaliko<br>
+            Kya Nabi Hai Tumhaara Hamaara Nabi</p>
+            <p>Jis Ne Tukre Kiye Hain Qamar Ke Woh Hai<br>
+            Noore Wahdat Ka Tukra Hamaara Nabi</p>
+            <p>Sab Chamak Waale Ujhlo Me Chamka Kiye<br>
+            Andhe Sheesho Mein Chamka Hamara Nabi</p>
+            <p>Jis Ne Murda Dilon Ko Di Umre Aabad<br>
+            Hai Woh Jaane Masiha Hamaara Nabi</p>
+            <p>Gamzado Ko Raza Mushda-di-je Ke Hain<br>
+            Be-kasoon Ka Sahara Hamara Nabi</p>
+            <div class="version-divider">Alternative / Extended Version Verses</div>
+            <p>Sab Se Aula Wo Aala Humara Nabi<br>
+            Sab Se Baala Wo Aala Humara Nabi</p>
+            <p>Arsh E Aazam Ka Taara Humara Nabi<br>
+            Noor Saara Ka Saara Humara Nabi</p>
+            <p>Khud Khuda Ne Sawaara Humara Nabi<br>
+            Apne Maula Ka Pyara Humara Nabi</p>
+            <p>Dono Aalam Ka Dulha Humara Nabi<br>
+            Jiske Sar Par Shafa'at Ka Sehra Bandha</p>
+            <p>Kaaba Qausain Ka Jisko Rutba Mila<br>
+            Jiska Chehra Hai Aaina'ye Haq Numa</p>
+            <p>Bazme Aakhir Ka Shamae Firoza Hua<br>
+            Noore Awwal Ka Jalwa Humara Nabi</p>
+            <p>Uske Ausaaf Ginti Me Kab Aa Sake<br>
+            Jiske Kooche Pe Qurbaan Sab Jannate</p>
+            <p>Badshaho Ke Sar Jiske Aage Jhuke<br>
+            Bujh Gayi Jis Ke Aage Sabhi Mash-ale</p>
+            <p>Shamma Wo Lekar Aaya Humara Nabi<br>
+            Jisne Dekha Hai Khaliq Ko Asra Ki Raat</p>
+            <p>Hai Kalaqm E Khuda Jis Ki Har Ek Baat<br>
+            Jiske Ke Dum Se Hai Kauno Makaa Ko Sabaat</p>
+            <p>Jiske Talwo Ka Dhowan Hai Aabe Hayaat<br>
+            Hai Wo Jaane Maseeha Humara Nabi</p>
+            <p>Shabe Asra Ke Jalwo Ka Kya Ho Bayaan<br>
+            Buk'aye Noor The Sab Zameen Aasman</p>
+            <p>Kya Bataau Tumhe Kya Tha Us Dum Samaa<br>
+            Arsho Kursi Ki Thi Aaina Bandiya</p>
+            <p>Sue Haq Jab Sidhaara Humara Nabi<br>
+            Sarware Ambiya Malike Juz Wo Kul</p>
+            <p>Woh Hai Nabiyo Me Yu Jaise Guncho Me Gul<br>
+            Baat To Saaf Hai Phir Ye Kyun Shoro Gul</p>
+            <p>Khalq Se Auliya, Auliya Se Rusul<br>
+            Aur Rasoolo Se Aala Humara Nabi</p>
+            <p>Arshe Aazam Ki Izzat Hai Jiske Qadam<br>
+            Jiske Qabze Me Hai Ilme Lauho Kalam</p>
+            <p>Jiske Baa'is A'yaa Hai Uduso Kidam<br>
+            Husn Khata Hai Jiske Namak Ki Qasam</p>
+            <p>Wo Maleehe Dil Aara Humara Nabi<br>
+            Lakhon Aaye Yaha Aur Lakhon Gaye</p>
+            <p>Unche Unche Shehenshah Yaha Na Ruke<br>
+            Kitne Jalte Diye Jalke Phir Bujh Gaye</p>
+            <p>Kya Khabar Kitne Taare Khile Chup Gaye<br>
+            Par Na Doobe Na Dooba Humara Nabi</p>
+            <p>Mangne Walo Tum Ko To Yu Chahiye<br>
+            Unse Hi Mange Dil Ko Sukoon Chahiye</p>
+            <p>Mangna Aur Kisi Se Bhi Kyun Chahiye<br>
+            Kaun Deta Hai Dene Ko Muh Chahiye</p>
+            <p>Dene Wala Hai Sachcha Humara Nabi<br>
+            Mere Aaqa Ki Mamnoon Har Ek Shai</p>
+            <p>Unka Ehsaan Har Zarre Zarre Pe Hai<br>
+            Kahiye Sayyed Se Aaho Buka Na Bake</p>
+            <p>Ghumzado Ko Raza Muzda Dije Ke Hai<br>
+            Bekaso Ka Sahara Humara Nabi</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-aula">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-aula">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 6 -->
+            <div id="sham" class="naat-block">
+                <h2 class="naat-title">Tu Sham E Risalat Hai</h2>
+                <p class="naat-author">Written by: Mufti-e-Azam-e-Hind</p>
+                <audio controls preload="none"><source src="audio-copyrighted/sham.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-sham" tabindex="-1">
+            <p>Tu Shamme Risalat Hain A’alam Tera Parwana<br>
+            Tu Mahe Nubuvvat Hain Ay Jalwa E Janana</p>
+            <p>Jo Saaqi E Kausar Ke Chehre Se Nikaab Uththe<br>
+            Har Dil Bane Maikhana Har Aankh Ho Paymana</p>
+            <p>Dil Apna Chamak Utthe Imaan Ki Tal'at Se<br>
+            Kar Aankhein Bhi Noorani Ay Jalwa E Jaanana</p>
+            <p>Kyu Zulfe Muambar Se Kooche Na Mahak Uthe<br>
+            He Panja Qudrat Jab Zulfo Ka Tere Shaana</p>
+            <p>Tum Aye Chati Baazi Ronak Huwi Phir Taazi<br>
+            Kaaba Hua Phir Kaaba Kar Daala Tha Butt Khana</p>
+            <p>Peete Hain Tere Dar Ka, Khate Hain Tere Dar Ka<br>
+            Pani Hain Tera Pani, Dana Hain Tera Dana</p>
+            <p>Har Arzoo Bar Aa-aey, Sab Hasratein Puri Hon<br>
+            Woh Kaan Zara Dhar Kar Sunlein, Mera Fasaana</p>
+            <p>Sarshar Ise Kar De Ik Jaam E Labalab Se<br>
+            Taa Hashr Rahe Saaqi Aabad Ye Maikhana</p>
+            <p>Is Darr Ki Huzoori Hi Isyan Ki Dawa Thahri<br>
+            Hai Zehre Ma Aasi Ka Taibah Hi Shifa Khaana</p>
+            <p>The Paun Mein Bekhud Ke, Chaale To Chala Sar Se<br>
+            Hoshiyaar Hai Diwaana, Hoshiyaar Hai Diwaana</p>
+            <p>Har Phool Me Boo Teri Har Sham-a Me Zao Teri<br>
+            Bulbul Hai Tera Bulbul Parwaana Hai Parwaana</p>
+            <p>Duniya Mein Hume Tum Ne Jab Apna Banaaya Hai<br>
+            Mehshar Me Bhi Keh Dena Yeh Hai Mera Deewana</p>
+            <p>Gir Pad Ke Yaha Pohcha, Mar Mar Ke Ise Paya<br>
+            Chute Na Ilahi Ab, Sange Dare Jaana Na</p>
+            <p>Sange Dare Jaana Hain, Thokar Na Lage Kisko<br>
+            Ay Kash Wo Sun Lete, Mujhse Mera Afsana</p>
+            <p>Sange Dare Jaana Par, Karta Hu Jabee Sayi<br>
+            Sajda Na Samajh Najdi, Sar Deta Hu Nazrana</p>
+            <p>Woh Kehte Na Kehte Kuch Woh Karte Na Karte Kuch<br>
+            Ay Kash Wo Sunn Lete Mujh Se Mera Afsana</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-sham">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-sham">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 7 -->
+            <div id="chamak" class="naat-block">
+                <h2 class="naat-title">Chamak Tujhse Paate Hain Sab Paane Waale</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/chamak.webm" type="audio/webm"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-chamak" tabindex="-1">
+            <p>Chamak Tujhse Paate Hain Sab Paane Waale<br>
+            Mera Dil Bhi Chamka De Chamkane Waale</p>
+            <p>Barasta Nahi Dekh Kar Abr E Rehmat<br>
+            Badoo(n) Par Bhi Barsa De Barsane Waale</p>
+            <p>Tu Zinda Hai Wallah Tu Zinda Hai Wallah<br>
+            Mere Chashme Aalam Se Chup Jaane Waale</p>
+            <p>Madine Ke Khitte Khuda Tujhko Rakhhe<br>
+            Ghareebo Faqeero Ke Thehrane Waale</p>
+            <p>Me Mujrim Hu Aaqa Mujhe Saath Le Lo<br>
+            Ke Raste Me Hai Jaa Baja Thane Waale</p>
+            <p>Haram Ki Zamee(n) Aur Qadam Rakh Ke Chalna<br>
+            Are Sar Ka Mouqa Hai O Jaane Waale</p>
+            <p>Chal Uth Zabah Farsa Ho Saaki Ke Dar Par<br>
+            Dar E Jood Hai Mere Mastane Waale</p>
+            <p>Tera Khaye Tere Ghulamo Se Uljhe<br>
+            Hai Munkir Ajab Khaane Gurrane Waale</p>
+            <p>Rahega Yu Hi Unka Charcha Rahega<br>
+            Pade Khaaq Ho Jaye Jal Jaane Waale</p>
+            <p>Ab Aayi Shafa’at Ki Sa’at Ab Aayi<br>
+            Zara Chain Le Mere Ghabhrane Waale</p>
+            <p>Raza Nafs Dushman Hai Dumme Na Aana<br>
+            Kaha Tumne Dekhe Hai Chandrane Waale</p>
+            <div class="version-divider">Alternative / Extended Version Verses</div>
+            <p>Tumhi Farsh Se Arsh Par Jaane Wale<br>
+            Tumhi Ne'mate Rab Se Dilwane Wale</p>
+            <p>Tere Aage Sab Haath Phailaane Wale<br>
+            Chamak Tujh Se Paate Hai Sab Paane Wale</p>
+            <p>Mera Dil Bhi Chamka De Chamkane Wale<br>
+            Hai Be Misl Tera Karam Jaane Izzat</p>
+            <p>Ghulaamo Pe Har Dam Hai Teri Inaayat<br>
+            Wo Gulshan Ho Sehra Ho Darya Ki Parvat</p>
+            <p>Barasta Nahi Dekh Kar Abre Rehmat<br>
+            Bado Par Bhi Barsaade Barsaane Wale</p>
+            <p>Sawaari Se Apni Tu Jis Dum Utarna<br>
+            Madine Ke Zaair Zara Tu Sambhalna</p>
+            <p>Yaha Tha Mere Mustafa Ka Guzarna<br>
+            Haram Ki Zameen Aur Qadam Rakh Ke Chalna</p>
+            <p>Are Sar Ka Mauka Hai O Jaane Wale<br>
+            Aye Mushkil Kusha Kije Mushkil Kushaayi</p>
+            <p>Tadap Kar Jo Maine Sada Ye Lagaayi<br>
+            To Aaqa Ki Rehmat Ye Paigaam Laayi</p>
+            <p>Ab Aayi Shafa'at Ki Sa'aat Ab Aayi<br>
+            Zara Chain Le Mere Ghabraane Wale</p>
+            <p>Ghulaame Nabi Khuld Me Jaa Basega<br>
+            Jahannam Me Najdi Munafiq Jalega</p>
+            <p>Jo Aashiq Hai Wo To Hamesha Kahega<br>
+            Rahe Ga Yoon Hi Un Ka Charcha Rahega</p>
+            <p>Pade Khaak Ho Jaaye Jal Jaane Wale<br>
+            Kabhi Ghauso Khwaaja Ke Naaro Se Uljhe</p>
+            <p>Kabhi Auliya Ke Mazaaro Se Uljhe<br>
+            Duroodo Se Uljhe Salaamo Se Uljhe</p>
+            <p>Sahiul Aqeeda Imaamo Se Uljhe<br>
+            Ye Kha Kar Niyaaze Niyaazo Se Uljhe</p>
+            <p>Tera Khaye Tere Ghulaamo Se Uljhe<br>
+            Hai Munkir Ajab Khane Gurrane Wale</p>
+            <p>Ye Najdi Munafiq Ye Ganda Hai Wallah<br>
+            Galaazat Ka Balke Pulanda Hai Wallah</p>
+            <p>Jahannam Me Naam Us Ka Kunda Hai Wallah<br>
+            Jo Murda Kahe Tum Ko Woh Murda Hai Wallah</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-chamak">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-chamak">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 8 -->
+            <div id="joodo" class="naat-block">
+                <h2 class="naat-title">Wah Kya Joodo Karam Hain Shahe Bat-ha Tera</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/joodo.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-joodo" tabindex="-1">
+            <p>Wah Kya Joodo Karam Hain Shahe Bat-ha Tera<br>
+            Nahi Sunta Hi Nahi Maangne Waala Tera</p>
+            <p>Dhaare Chalte Hain Ataa Ke Wo Hain Qatra Tera<br>
+            Tare Khilte Hain Sakhaa Ke Wo Hain Zar-ra Tera</p>
+            <p>Faiz Hain Ya Shahe Tasneem Nirala Tera<br>
+            Aap Pyaso Ke Tajas-sus Me Hain Dariya Tera</p>
+            <p>Agniyan Palte Hain Dar Se Wo Hain Bada Tera<br>
+            Asfiya Chalte Hain Sar Se Wo Hain Rasta Tera</p>
+            <p>Farsh Waale Teri Shaukat Ka Uloo Kya Jaane<br>
+            Khusrava Arsh Pe Udta Hain Pharera Tera</p>
+            <p>Aasmaan Khwan, Zameen Khwan Zamana Mehmaan<br>
+            Sahibe Khana Laqab Kiska Hain Tera Tera</p>
+            <p>Main To Maalik Hi Kahunga Ke Ho Maalik E Habeeb<br>
+            Ya’ani Mehboobo Muheeb Me Nahi Mera Tera</p>
+            <p>Tere Qadmo Me Jo Hain Ghair Ka Muh Kya Dekhe<br>
+            Kaun Nazro Pe Chadhe Dekh Ke Talwa Tera</p>
+            <p>Bahre Sa-il Ka Hu Sa-il Na Kuwe Ka Pyasa<br>
+            Khud Bujha Jaye Kaleja Mera Cheeta Tera</p>
+            <p>Chor Haakim Se Chupa Karta Hain Ya Uske Khilaf<br>
+            Tere Daamam Me Chupe Chor Anokha Tera</p>
+            <p>Aankhein Thandi Ho Jigar Taze Ho Jaan-e-sairaab<br>
+            Sachhe Suraj Wo Dil-aara Hai Ujala Tera</p>
+            <p>Dil Abas Khauf Se Patta Sa Uda Jaata Hai<br>
+            Palla Halka Sahi Bhari Hai Bharosa Tera</p>
+            <p>Aik Main Kya Mere Isyaan Ki Haqeeqat Kitni<br>
+            Mujhse Sau Laakh Ko Kaafi Hain Ishara Tera</p>
+            <p>Muft Paala Tha Kabhi Kaam Ki Aadat Na Padee<br>
+            Ab Amal Poochte Hain Haaye Nikamma Tera</p>
+            <p>Tere Tukdo Se Pale Ghair Ki Thokar Pe Na Daal<br>
+            Jhidkiya Khaaye Kaha Chor Ke Sadqa Tera</p>
+            <p>Khwaro Bimaro Khatavaro Gunahgaar Hu Main<br>
+            Rafe’ao Nafe’ao Shafe’a Lakab Aaqa Tera</p>
+            <p>Meri Taqdeer Buri Ho To Bhali Karde Ki Hain<br>
+            Mahwo Isbaat Ke Daftar Me Kadoda Tera</p>
+            <p>Tu Jo Chahe To Abhi Mayl Mere Dil Ke Dhule<br>
+            Ke Khuda Dil Nahi Karta Kabhi Mayla Tera</p>
+            <p>Kiska Muh Takiye Kaha Jaiye Kis Se Kahiye<br>
+            Tere Hi Qadmo Pe Mitt Jaye Yeh Paala Tera</p>
+            <p>Tu Ne Islam Diya Aaqa Tu Ne Jama’at Me Liye<br>
+            Tu Kareem Ab Koi Phirta Hain Atiyya Tera</p>
+            <p>Maut Sunta Hu Sitam Talkh Hain Jahraaba-e Nab<br>
+            Kaun La De Mujhe Talwo Ka Ghusala Tera</p>
+            <p>Door Kya Janiye Bad-kaar Pe Kaise Guzre<br>
+            Tere Hi Dar Pe Mare Be-kaso Tanha Tera</p>
+            <p>Tere Sadqe Mujhe Ik Boond Bohat Hain Teri<br>
+            Jis Din Achho Ko Mila Jam Chalakta Tera</p>
+            <p>Haram-o-taibah Wa Baghdad Jidhar Kije Nigah<br>
+            Jyot Padti Hain Teri Noor Hain Chanta Tera</p>
+            <p>Teri Sarkaar Me Laata Hain Raza Usko Shafe’a<br>
+            Jo Mera Ghous Hain Aur Laadla Beta Tera</p>
+            <div class="version-divider">Alternative / Extended Version Verses</div>
+            <p>Koi Duniya E Ata Me Nahi Hamta Tera<br>
+            Ho Jo Hatim Ko Mayassar Ye Nazara Tera</p>
+            <p>Keh Uthe Dekh Ke Bakhshish Me Ye Rutba Tera<br>
+            Wah Kya Joodo Karam Hai Shahe Batha Tera</p>
+            <p>Nahi Sunta Hi Nahi Mangne Wala Tera.<br>
+            Kuch Bashar Hone Ke Naate Tujhe Khud Sa Jaane</p>
+            <p>Aur Kuch Mahaz Payaami Hi Khuda Ka Jaane<br>
+            Inki Aukaat Hi Kya Hai Ke Ye Itna Jaane</p>
+            <p>Farsh Wale Teri Shaukat Ka Uloo Kya Jaane<br>
+            Kusrawa Arsh Pe Udta Hai Pharera Tera.</p>
+            <p>Kai Pushton Se Ghulami Ka Ye Rishta Hai Bahaal<br>
+            Yahi Tifli Aur Jawaani Ke Bitaaye Maho Saal</p>
+            <p>Ab Budhape Me Khudara Hume Yoon Dar Se Na Taal<br>
+            Tere Tukdon Pe Pale Ghair Ki Thokar Pe Na Daal</p>
+            <p>Jhidkiya Khaaye Kaha Chchod Ke Sadqa Tera.<br>
+            Ghame Dauran Se Ghabraiye To Kisse Kahiye</p>
+            <p>Ab Apni Uljhan Kise Batlaiye Kisse Kahiye<br>
+            Cheer Kar Dil Kise Dikhlaiye Kisse Kahiye</p>
+            <p>Kiska Muh Takiye Kaha Jaaiye Kisse Kahiye<br>
+            Tere Hi Qadmon Pe Mit Jaaye Ye Paala Tera.</p>
+            <p>Nazre Ushshaqe Nabi Hai Ye Mera Harfe Ghareeb<br>
+            Mimbare Waaz Pe Ladte Rahe Aapas Me Khateeb</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-joodo">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-joodo">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 9 -->
+            <div id="kaanp" class="naat-block">
+                <h2 class="naat-title">Har Nazar Kaanp Utthegi Mehshar Ke Din</h2>
+                <p class="naat-author">Written by: Tajush Shariah</p>
+                <audio controls preload="none"><source src="audio-copyrighted/kaanp.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-kaanp" tabindex="-1">
+            <p>Har Nazar Kaanp Utthegi Mehshar Ke Din<br>
+            Khauf Se Har Kaleja Dehel Jaayega</p>
+            <p>Par Ye Naaz Un Ke Bande Ka Dekhenge Sab<br>
+            Thaamkar Unka Daaman Machal Jaayenga</p>
+            <p>Maujh Katra Ke Hum Se Chalee Jayegi<br>
+            Rukh Mukhalif Hava Ka Badal Jaayega</p>
+            <p>Jab Ishaarah Karenge Wo Naa Khuda<br>
+            Apna Beda Bhanvar Se Nikal Jaayega</p>
+            <p>Yoon To Jeeta Hu Hukme Khuda Se Magar<br>
+            Mere Dil Ki Hai Unko Yaqeenan Khabar</p>
+            <p>Haasile Zindagi Hoga Wo Din Mera<br>
+            Unke Kadmon Mein Jab Dam Nikal Jaayega</p>
+            <p>Rabbi Sallim Wo Farmaane Wale Mile<br>
+            Kyun Satate Hai Aye Dil Tujhe Waswase</p>
+            <p>Pul Se Guzrenge Hum Wajd Karte Huwein<br>
+            Kaun Kehta Hai Paau Fisal Jayega</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-kaanp">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-kaanp">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 10 -->
+            <div id="ghesue" class="naat-block">
+                <h2 class="naat-title">Chand Se Unke Chehre Par Ghesue Mushk Faam Do</h2>
+                <p class="naat-author">Written by: Tajush Shariah</p>
+                <audio controls preload="none"><source src="audio-copyrighted/ghesue.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-ghesue" tabindex="-1">
+            <p>Chand Se Unke Chehre Par Ghesue Mushk Faam Do<br>
+            Din Hai Khila Hua Magar Waqte Sahar Hai Sham Do</p>
+            <p>Khair Se Din Khuda Wo Laye Dono Haram Hame Dikhaye<br>
+            Zamzam O Beer E Fatima Ke Piyenge Chalke Jaam Do</p>
+            <p>Talwo Se Unke Chaar Chand Lag Gaye Mahromah Ko<br>
+            Hai Yeh Unhi Ki Tabishe Aur Hain Unhi Ke Naam Do</p>
+            <p>Haatho Se Chaar Yaar Ke Hum Ko Milenge Chaar Jaam<br>
+            Daste Hasan Husain Se Aur Milenge Jaam Do</p>
+            <p>Unki Jabeen E Naaz Par Zulf E Siyaah Bikhar Gayi<br>
+            Jam'a Hain Ek Waqt Me Jiddain E Subha Wa Shaam Do</p>
+            <p>Zaate Hasan Husain Hai Ahle Shabeehe Mustafa<br>
+            Zaat Hain Ek Nabi Ki Zaat Aur Hain Unhi Ke Naam Do</p>
+            <p>Aarize Noor Bar Se Bikhri Hui Hati Jo Zulf<br>
+            Ek Andheri Raat Me Nikle Mahe Tamaam Do</p>
+            <p>Pike Pila Ke Maiksho Kuch To Bachi-kuchi Hi Do<br>
+            Qatra Do Qatra Hi Sahi Kuch To Barah-e-naam Do</p>
+            <p>Ab To Madine Lo Bula Gumbad E Sabz Do Dikha<br>
+            Haamid O `Mustafa` Tere Hind Me Hain Ghulaam Do</p>
+            <div class="version-divider">Alternative / Extended Version Verses</div>
+            <p>Chand Se Unke Chehre Par Ghesue Mushk Faam Do<br>
+            Ek Anokhi Hai Sahar Jisse Baham Hai Sham Do</p>
+            <p>Dono Taraf Hai Chehre Pe Zulfe Ziya Hai Faam Do<br>
+            Do Do Sahar Hai Beech Me Pehlu Me Unke Sham Do</p>
+            <p>Unki Jabeen E Naaz Par Zulf E Siyaah Bikhar Gayi<br>
+            Shab Ke Haseen Parde Me Chamke Mahe Tamaam Do</p>
+            <p>Ghuncha-e-dil Khilaiye Jalwa-e-rukh Dihaiye<br>
+            Jaam-e-nazar Pilaiye Daur Chale Hudam Do</p>
+            <p>Unki Amaan Me Rahe Jinke Karam Se Milgaye<br>
+            Unke Chaman Ke Pasba Hussam Aur Humaam Do</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-ghesue">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-ghesue">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 11 -->
+            <div id="yakta" class="naat-block">
+                <h2 class="naat-title">Mustafa-E-Zaat-E-Yakta Aap Hain</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/yakta.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-yakta" tabindex="-1">
+            <p>Mustafa E Zaat E Yakta Aap Hain<br>
+            Yak Ne Jisko Yak Banaya Aap Hain</p>
+            <p>Aabo Gil Mein Noor Ki Pehli Kiran<br>
+            Jaane Aadam Jaane Hawwa Aap Hain</p>
+            <p>La Makaan Tak Jis Ki Phaili Raushni<br>
+            Wo Charaage Aalam Aara Aap Hain</p>
+            <p>Hai Namak Jis Ka Khameer E Husn Mein<br>
+            Wo Maleehe Husn Aara Aap Hain</p>
+            <p>Naazish E Arsho Waqaar E Arshiyaan<br>
+            Saahibe Qausain O Adna Aap Hain</p>
+            <p>Aap Ki Tal'at Khuda Ka Aaina<br>
+            Jis Mein Chamke Haq Ka Jalwa Aap Hain</p>
+            <p>Aap Jaisa Koyi Ho Sakta Nahi<br>
+            Apni Har Khoobi Mein Tanha Aap Hain</p>
+            <p>Aapko Rab Ne Kiya Apna Habeeb<br>
+            Saari Khalqat Ka Khulasa Aap Hain</p>
+            <p>Aapki Tal'at Ko Dekha Jaan Di<br>
+            Qabr Mein Pohcha To Dekha Aap Hain</p>
+            <p>Aapki Khatir Banaye Do Jahaan<br>
+            Apni Khatir Jo Banaya Aap Hain</p>
+            <p>Jaan Tui Jaanam Qaraare Jaan Tui<br>
+            Jaane Jaan Jaane Maseeha Aap Hain</p>
+            <p>Aapse Khud Aap Ka Saail Hun Main<br>
+            Jaane Jaan Meri Tamanna Aap Hain</p>
+            <p>Bar Darad Aamad Gada Behre Salaam<br>
+            Ho Bhala Akhtar Ka Daata Aap Hain</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-yakta">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-yakta">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 12 -->
+            <div id="sojaon" class="naat-block">
+                <h2 class="naat-title">Main So Jaon Ya Mustafa Kehte Kehte</h2>
+                <p class="naat-author">Written by: Mufti-e-Azam-e-Hind</p>
+                <audio controls preload="none"><source src="audio-copyrighted/sojaon.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-sojaon" tabindex="-1">
+            <p>Main So Jaon Ya Mustafa Kehte Kehte<br>
+            Khule Ankh Salle Ala Kehte Kehte</p>
+            <p>Habib E Khuda Ka Nazara Karun Mein<br>
+            Dilo Jaan Un Par Nisara Karu Mein</p>
+            <p>Muje Apni Rahmat Se Tu Apna Karle<br>
+            Siwa Tere Sabse Kinara Karun Mein</p>
+            <p>Khudara Ab Aao Ke Dam Hai Labon Par<br>
+            Dame Wapasi To Nazara Karun Mein</p>
+            <p>Muje Hath Aaye Agar Taaj E Shahi<br>
+            Teri Kafshe Paa Par Nisara Karun Mein</p>
+            <p>Tera Zikr Lab Par Khuda Dil Ke Andar<br>
+            Yunhi Zindagani Guzara Karun Mein</p>
+            <p>Dame Wapasi Tak Tere Geet Gaon<br>
+            Muhammad Mumajjad Pukara Karun Mein</p>
+            <p>Tere Dar Ke Hote Kaha Jaoon Pyaare<br>
+            Kaha Apna Daman Pasara Karun Mein</p>
+            <p>Khuda Khair Se Laaye Wo Din Bhi Noori<br>
+            Madine Ki Galiyan Buhara Karun Mein</p>
+            <div class="version-divider">Alternative / Extended Version Verses</div>
+            <p>Main So Jaoun Ya Mustafa Kehtey Kehtey<br>
+            Khulley Aankh Salle Aala Kehtey Kehtey</p>
+            <p>Sitam Pay Sitam Seh Gaey Dushmano Kay<br>
+            Habeeb-e-khuda, Ya Khuda Kehtey Kehtey</p>
+            <p>Guzarte Thay Kaantey Bharrey Raasto Say<br>
+            Rasul-e-khuda, Marhaba Kehtey Kehte</p>
+            <p>Huwey Surkhuru Aap Her Maarkey May<br>
+            Faqat Rabbana, Rabbana Kehtey Kehtey</p>
+            <p>Shahe Her Do Aalam Ne Naam-e-jabee Say<br>
+            Bhara Paet Shukrey Khuda Kehtey Kehtey</p>
+            <p>Andheiroo May Ham Ne Kiya Hay Ujaala<br>
+            Aqeedat Sey Noor-ul-huda Kehtey Kehte</p>
+            <p>Dilley Muztarib Ko Qaraar Aagya Hay<br>
+            Shabo Roz Ya Mujtaba Kehte Kehte</p>
+            <p>Museebat Kay Maaro Kathan Manzillo Say<br>
+            Guzer Jaoo Ya Mustafa Kehte Kehte</p>
+            <p>Kate Kaash, Iqbal Ab Umr Saari<br>
+            Faqat Na’ate Khairul Wara Kehte, Kehte</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-sojaon">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-sojaon">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 13 -->
+            <div id="bakhte" class="naat-block">
+                <h2 class="naat-title">Bakhte Kufta Ne Mujhe Roze Pe Jaane Na Diya</h2>
+                <p class="naat-author">Written by: Tajush Shariah</p>
+                <audio controls preload="none"><source src="audio-copyrighted/bakhte.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-bakhte" tabindex="-1">
+            <p>Bakhte Kufta Ne Mujhe Roze Pe Jaane Na Diya<br>
+            Chashmo Dil Seene Kaleje Se Lagane Na Diya</p>
+            <p>Aah Qismat Mujhe Dunya K Ghamoo Ne Roka<br>
+            Ha'ay Taqdeer K Taiba Mujhe Jaane Na Diya</p>
+            <p>Paoon Thak Jaate Agar Paoon Banata Sar Ko<br>
+            Sar Ke Bal Jaata Magar Zouf Ne Jaane Na Diya</p>
+            <p>Sar To Sar Jaan Se Jaane Ki Mujhe Hasrat He<br>
+            Mot Ne Ha'ay Mujhe Jaan Se Jaane Na Diya</p>
+            <p>Sharbat E Deed Ne Or Aag Laga De Dil Mein<br>
+            Tapsh E Dil Ko Barhaya He, Bujaane Na Diya</p>
+            <p>Ab Kahaan Jae Ga Naksha Tera Mere Dil Se<br>
+            Tehh Me Rakha He, Ise Dil Ne Gumane Na Diya</p>
+            <p>Sajda Karta Jo Mujhe Is Ki Ijazat Hoti<br>
+            Kya Karoon Izn Mujhe Is Ka Khuda Ne Na Diya!</p>
+            <p>Mere A'amal Ka Badla To Jahannum Hi Tha<br>
+            Mein To Jaata, Mujhe Sarkar Ne Jaane Na Diya</p>
+            <p>Mere A'amale Siyah Ne Kiya Jeena Dobar<br>
+            Zahr Khata, Tere Irshad Ne Khane Na Diya</p>
+            <p>Nafse Badkaar Ne Dil Par Yeh Qiyamat Tori<br>
+            Amal E Naik Kiya B To Chupane Na Diya</p>
+            <p>Itna Kamzor Kiya Zoa'afa E Quwa Ne Mujh Ko<br>
+            Paanv To Paanv Mujhe Sarr Bhi Uthane Na Diya</p>
+            <p>Kabhi Beemar E Muhabbat Bhi Hue Hai Achhe<br>
+            Roz Afzu(n) Hai Marz Kaam Dawa Ne Na Diya</p>
+            <p>Aur Chamakti Si Ghazal Koi Padho Aye Noori<br>
+            Rang Apna Abhi Jamne Shu'ara Ne Na Diya</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-bakhte">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-bakhte">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 14 -->
+            <div id="koyikyajane" class="naat-block">
+                <h2 class="naat-title">Koyi Kya Jane Jo Tum Ho Khuda Hi Jaane Kya Tum Ho</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/koyikyajane.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-koyikyajane" tabindex="-1">
+            <p>Koyi Kya Jane Jo Tum Ho Khuda Hi Jaane Kya Tum Ho<br>
+            Khuda To Keh Nahi Sakte Magar Shaane Khuda Tum Ho</p>
+            <p>Nabiyoun Me Ho Tum Aise Nabiyul Ambiya Tum Ho<br>
+            Haseenoun Me Tum Aise Ho Ke Mehboob E Khuda Tum Ho</p>
+            <p>Tumhara Husn Aisa Hai Ki Mehboob E Khuda Tum Ho<br>
+            Mahe Kaamil Kare Kasbe Ziya Wo Mahlika Tum Ho</p>
+            <p>Uluwe Martabat Pyaare Tumhara Sab Pe Raushan Hai<br>
+            Makeen E La Makaan Tum Ho Shah E Arshe Ula Tum Ho</p>
+            <p>Tumhari Hamd Farmaee Khuda Ne Apne Quran Me<br>
+            Muhammad Aur Mumajjad Mustafa O Mujtaba Tum Ho</p>
+            <p>Jo Sab Se Pichla Hoga Uska Pichla Ho Nahi Sakta<br>
+            Ki Wo Pichla Nahi Agla Hua Usse Wara Tum Ho</p>
+            <p>Tumhi Se Fatha Farmaee Tumhi Par Qatm Farmaee<br>
+            Rasool Ki Ibteda Tum Ho Nabi Ki Intehaa Tum Ho</p>
+            <p>Khuda Ne Zaat Ka Apni Tumhe Mazhar Banaya Hai<br>
+            Jo Haq Ko Dekna Chahe To Uske Aaina Tum Ho</p>
+            <p>Tumhi Batin Tumhi Zahir Tumhi Awwal Tumhi Aaqir<br>
+            Niha Bhi Ho Ayaa Bhi Mubtada O Muntaha Tum Ho</p>
+            <p>Munawwar Kar Diya Hai Aap Ke Jalwo Ne Aalam Ko<br>
+            Maho Khursheed Ko Baqshi Ziya Noor E Quda Tum Ho</p>
+            <p>Mita Di Kufr Ki Zulmat Tumhare Roo E Raushan Ne<br>
+            Sawera Shirk Ka Tumne Kiya Shams O Duha Tum Ho</p>
+            <p>Jahan Taarik Tha Saara Andhera Hi Andhera Tha<br>
+            Tum Aaye Zulmate Tumse Miti Badrudduja Tum Ho</p>
+            <p>Mera Mu Kya Ke Mai Madh O Sataish Me Zuba Kholoon<br>
+            Mere Aqa Tum Aise Ke Mumdoohe Khuda Tum Ho</p>
+            <p>Rafa'na Se Tumhari Rifat E Baala Huwi Zahir<br>
+            Ke Mehboob Bane Rab Me Sab Se Aali Martaba Tum Ho</p>
+            <p>Uloowe Rutba E Sarkaar E Aali Sab Pe Raushan Hai<br>
+            Makeen E La Makaan Tum Ho Shahe Arshe Ula Tum Ho</p>
+            <p>Shabe Mearaj Se Ay Sayyide Kul Ho Gaya Zaahir<br>
+            Rasool Hai Muqtadi Saare Imam Ul Ambiya Tum Ho</p>
+            <p>Na Hote Tum Na Hote Wo Ke Asle Jumla Tum Hi Ho<br>
+            Qabar The Wo Tumhari Mere Maula Mubtada Tum Ho</p>
+            <p>Tumhare Chahne Wale Ko Kuch Aisi Mohabbat Hai<br>
+            Udhar Ho Jae Wo Maula Jidhar Sadrul Wara Tum Ho</p>
+            <p>Tumhare Chahne Wale Use Mehboob Hai Saare<br>
+            Kuch Is Andaaz Ke Pyaare Habeeb E Kibriya Tum Ho</p>
+            <p>Tumhare Baad Paida Ho Nabi Koyi Nahi Mumkin<br>
+            Nubuvvat Khatam Hai Tum Par Ki Khatmul Ambiya Tum Ho</p>
+            <p>Ye Kya Maine Kiya Kyu Dhoond Dala Arsa E Mehshar<br>
+            Hame Maloom Tha Pyaare Hamara Mud Da'aa Tum Ho</p>
+            <p>Magar Aisa Na Kyu Hota Ke Mehshar Me Ye Khulna Tha<br>
+            Shafi E Mujrima Peshe Khuda Tanha Shaha Tum Ho</p>
+            <p>Giraftaar E Balaa Hazir Hue Hai Toote Dil Le Kar<br>
+            Ki Har Bekal Ki Kal Toote Dilo Ka Aasra Tum Ho</p>
+            <p>Khabar Lije Khudara Mere Maula Mujh Se Bekas Ki<br>
+            Ki Har Bekas Ke Kas Bebas Ke Bas Roohi Fida Tum Ho</p>
+            <p>Musallat Kardiya Tumko Khuda Ne Apne Ghaibo Par<br>
+            Nabi E Mujtaba Tum Ho Rasool E Murtuza Tum Ho</p>
+            <p>Chamak Jaaye Dile Noori Tumhare Paak Jalwo Se<br>
+            Mita Do Zulmat E Dil Ki Mere Noor Ul Huda Tum Ho</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-koyikyajane">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-koyikyajane">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 15 -->
+            <div id="yun" class="naat-block">
+                <h2 class="naat-title">Ham Apne Nabi Paak Se Yun Pyaar Karenge</h2>
+                <p class="naat-author">Written by: Sabir Raza Azhari</p>
+                <audio controls preload="none"><source src="audio-copyrighted/yun.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-yun" tabindex="-1">
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Jashne Wiladat Ki Raunak Pe Yaaron<br>
+            Marte Hai Sunni Marte Rahenge<br>
+            Apne Nabi Ki Azmat Ka Charcha<br>
+            Karte Hai Sunni Karte Rahenge</p>
+            <p>Kuchh Jalne Waale Dekh Ke Kehte Hai Hamesha<br>
+            Sarkar Ki Aamad Pe Lagate Ho Kyun Paisa<br>
+            Yeh Paisa toh Kya Cheez Hai Ham Ghar Bhi Lutadein<br>
+            Koi Nahin Jahan Mein Sarkar Ke Jaisa</p>
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Mere Nabi Aa Gaye Marhaba Ya Mustafa<br>
+            Pyaare Nabi Aa Gaye Marhaba Ya Mustafa<br>
+            Lajpal Nabi Aa Gaye Marhaba Ya Mustafa<br>
+            Ghamkhar Nabi Aa Gaye Marhaba Ya Mustafa</p>
+            <p>Sahibe Mehraj Nabi Aasiyon Ki Laaj Nabi<br>
+            Nabiyon Ke Sartaj Nabi Kal Bhi The Aur Aaj Nabi<br>
+            Do Jahan Ke Raaj Waale Mere Nabi Aa Gaye</p>
+            <p>Har Kharji Fasadi Watan Se Bhagayenge<br>
+            Padh Ke Durud Sabko Miladi Banayenge<br>
+            Layenge Ham Huzur ka  Islam Takht par<br>
+            La-Deeniyat Ke Saare Buton Ko Girayenge</p>
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Taklif Hoti Hai Tujhe Mirchi Bhi Lagti hai<br>
+            Jab Barwih Pe Lighton Se Galiyan Bhi Sajti hai<br>
+            Kyun Chidta Hai Tu Dekh Ke Jandon Ki Baharen<br>
+            Tazime Nabi Ho Toh Sabhi Achi Lagti Hai</p>
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Nisar Teri Chahel Pehel Par<br>
+            Hazaron Eidein Rabi ul Awwal<br>
+            Siwaye Iblis ke Jahan mein<br>
+            Sabhi toh Khushiyan mana rahe hein</p>
+            <p>Lalach Na Do Ham Naame Muhammad Pe Marenge<br>
+            Milad Pe Samjhota Kiya Hai Na Karenge<br>
+            Bardasht Na Karenge Juluson Pe Rukawat<br>
+            Milade Muhammad Ka Mission Jari Rakhenge</p>
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Tera Khawan Mai Tere Geet Gawan Ya RasulAllah<br>
+            Tera Milad Mai Kyun Na Manawan Ya RasulAllah</p>
+            <p>Taleem Pehle Dunga Muhammad Ke Jashn Ki<br>
+            Tehzeeb Sikhaunga Muhammad Ke Jashn Ki<br>
+            Virse Mein Chhod Jaunga Milad Ki Lagan<br>
+            Mere Bhi Bacche Jashne Wiladat Manayenge</p>
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Mere Nabi Aa Gaye Marhaba Ya Mustafa<br>
+            Pyaare Nabi Aa Gaye Marhaba Ya Mustafa<br>
+            Lajpal Nabi Aa Gaye Marhaba Ya Mustafa<br>
+            Ghamkhar Nabi Aa Gaye Marhaba Ya Mustafa</p>
+            <p>Ham Apni Mahobbat Ka Yun Ailan Karenge<br>
+            Ham Jashne Muhammad Pe Fida Jaan Karenge<br>
+            Milad Ki Rally o Juluson Mein Le Ja Kar<br>
+            Aulad Bhi Sarkar Pe Qurban Karenge</p>
+            <p>Ham Apne Nabi Paak se yun Pyar karenge<br>
+            Har Haal mein Sarkar ka Milad karenge</p>
+            <p>Kimat Jahan Mein Apni Ujagar Giraoge<br>
+            Aaqa Ko Chhod Kar Kabhi Izzat Na Paoge<br>
+            Mazbut Karlo Rishta Nabi Se Toh Jiyoge<br>
+            Rishta Nabi Se Todoge Toh Tooth Jaoge</p>
+            <p>Ham Apne Nabi Paak Se Yun Pyaar Karenge<br>
+            Har Haal Mein Sarkar Ka Milad Karenge</p>
+            <p>Sahibe Mehraj Nabi Aasiyon Ki Laaj Nabi<br>
+            Nabiyon Ke Sartaj Nabi Kal Bhi The Aur Aaj Nabi<br>
+            Do Jahan Ke Raaj Waale Mere Nabi Aa Gaye</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-yun">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-yun">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 16 -->
+            <div id="zaminozamaan" class="naat-block">
+                <h2 class="naat-title">Zamino Zamaan Tumhare Liye</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/zaminozamaan.webm" type="audio/webm"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-zaminozamaan" tabindex="-1">
+            <p>Zamino Zamaan Tumhare Liye<br>
+            Makino Makaan Tumhaare Liye<br>
+            Chunino Chunaan Tumhaare Liye<br>
+            Bane Do Jahaan Tumhaare Liye</p>
+            <p>Dehan Mein Zubaan Tumhaare Liye<br>
+            Badan Mein Hai Jaan Tumhaare Liye<br>
+            Hum Aa-ein Yahaan Tumhaare Liye<br>
+            Uthein Bhi Wahaan Tumhaare Liye</p>
+            <p>Farishte Khidam Rasoolo Hisham<br>
+            Tamaame Umam Ghulaame Karam<br>
+            Wajoodo Adam Huduso Qidam<br>
+            Jahaan Mein Iyaan Tumhaare Liye</p>
+            <p>Kalimo Najih Masiho Safi<br>
+            Khalilo Razi Rasoolo Nabi<br>
+            Atiqo Wasi Ghanio Ali<br>
+            Sana Ki Zubaan Tumhaare Liye</p>
+            <p>Asaalate Kul Imaamate Kul<br>
+            Siyaadate Kul Imaarate Kul<br>
+            Hukoomate Kul Vilaayate Kul<br>
+            Khuda Ke Yahaan Tumhaare Liye</p>
+            <p>Tumhaari Chamak Tumhaari Dhamak<br>
+            Tumhaari Jhalak Tumhaari Mahak<br>
+            Zamino Falak Simaako Samak<br>
+            Mein Sikkah Rawaan Tumhaare Liye</p>
+            <p>Zahoore Nihaan Qayaame Jahaan<br>
+            Ruku-e Jahaan Sujude Shahaan<br>
+            Niyaazein Yahaan, Namaaze Wahaan<br>
+            Yeh Kis Liye? Haan! Tumhaare Liye</p>
+            <p>Yeh Shamso Qamar, Yeh Shaamon Sahar<br>
+            Yeh Burgo Shajar, Yeh Baagho Samar<br>
+            Yeh Tegho Sipar, Yeh Taajo Qamar<br>
+            Yeh Hukmey Rawaan Tumhaare Liye</p>
+            <p>Yeh Faiz Diye, Woh Jood Kiye<br>
+            Ke Naam Liye Zamaana Jiye<br>
+            Jahaan Ne Liye Tumhaare Diye<br>
+            Yeh Ikraamiyaan Tumhaare Liye.</p>
+            <p>Sahaabe Karam Rawaana Kiye<br>
+            Ke Aabe Ni’am Zamaana Piye<br>
+            Jo Rakhte The Hum Woh Chaak Siye<br>
+            Yeh Satr-e Badaan Tumhaare Liye.</p>
+            <p>Sana Ka Nishaan Woh Noor Fashaan<br>
+            Ke Mehr-wa-shaan Ba Aanhamah Shaan<br>
+            Ba-saaya Kashaan Mawaakib Shaan<br>
+            Yeh Naam-o-nishaan Tumhaare Liye</p>
+            <p>Ataa-e Arab, Jalaa-e Karab<br>
+            Fuyuze Ajab Baghaire Talab<br>
+            Yeh Rehmate Rab Hai, Kis Ke Sabab<br>
+            Bi Rabb-e Jahaan Tumhaare Liye</p>
+            <p>Zunoob-e Fana ‘Uyoob-e Haba<br>
+            Quloob-e Safa Khutoobe Rawa<br>
+            Ye Khoob-e ’Ata Kuroob-e Zuda<br>
+            Paye Dilo Jaan Tumhaare Liye</p>
+            <p>Na Jinn-o Bashar Ke Aathon-pahar<br>
+            Malaaikah Dar Pe Bastah Kamar<br>
+            Na Jubbah-o Sar, Ke Qalbo Jigar<br>
+            Hain Sajdah Kunaan Tumhaare Liye</p>
+            <p>Na Roohe Amin, Na Arshe Barin<br>
+            Na Lawhe Mubin Koi Bhi Kahin<br>
+            Khabar Hi Nahin Jo Ramz Khule<br>
+            Azal Ke Nihaan Tumhaare Liye</p>
+            <p>Jina Mein Chaman, Chaman Mein Saman<br>
+            Saman Mein Phaban, Phaban Mein Dulhan<br>
+            Sazaa-e Mihan Par Aise Minan<br>
+            Yeh Amno Amaan Tumhaare Liye</p>
+            <p>Kamaal-e Mihaan Jalaal-e Shihaan<br>
+            Jamaal-e Hisaan Mein Tum Ho ‘Iyaan<br>
+            Ke Saare Jahaan Mein Roz-e Fakaan<br>
+            Zil-e Aaina Saan Tumhaare Liye</p>
+            <p>Yeh Toor Kuja Siphir To Kya<br>
+            Ke ‘Arsh-e ‘Ulaa Bhi Door Raha<br>
+            Jihat Se Wara Wisaal Mila<br>
+            Yeh Rif’at-e Shaan Tumhaare Liye</p>
+            <p>Khalilo Naji Masiho Safi<br>
+            Sabhi Se Kahin, Kahin Bhi Bani<br>
+            Yeh Be-khabari Ke Khalq Phiri<br>
+            Kahaan Se Kahaan Tumhaare Liye</p>
+            <p>Bafoore Sada, Samaan Yeh Bandha<br>
+            Yeh Sidrah Utha, Woh Arsh Jhuka<br>
+            Sufufe Sama Ne Sajdah Kiya<br>
+            Hui Jo Azaan, Tumhaare Liye</p>
+            <p>Yeh Marhamtein Ke Kachi Matein<br>
+            Na Chorein Latein Na Apni Gatein<br>
+            Qusoor Karein Aur Unse Bharein<br>
+            Qusoor-e Jinaan Tumhaare Liye</p>
+            <p>Fana Badaarat Baqa Babaarat<br>
+            Ze Har Do Jihat Bagird-e Sarat<br>
+            Hai Markaziyyat Tumhaari Sifat<br>
+            Ke Donon Kamaan Tumhaare Liye</p>
+            <p>Ishaare Se Chaand Chir Diya<br>
+            Chupe Hu-aey Khur Ko Pher Liya<br>
+            Gaye Hu-aey Din Ko Asr Kiya<br>
+            Yeh Taabo Tawaan Tumhaare Liye</p>
+            <p>Saba Woh Chale Ke Baagh Phaley<br>
+            Woh Phool Khiley Ke Din Hon Bhaley<br>
+            Liwa Ke Taley Sana Mein Khuley<br>
+            Raza Ki Zubaan Tumhaare Liye</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-zaminozamaan">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-zaminozamaan">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- NAAT 17 -->
+            <div id="sayyid" class="naat-block">
+                <h2 class="naat-title">Sayyid E Kawnayn Sultan E Jahan</h2>
+                <p class="naat-author">Written by: Ala Hazrat</p>
+                <audio controls preload="none"><source src="audio-copyrighted/sayyid.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-sayyid" tabindex="-1">
+            <p>Sayyid-e-kawnayn, Sultan-e-jahaa(n)<br>
+            Zill-e-yazdaa(n), Shah-e-dee(n), Arsh Aastaa(n)</p>
+            <p>Kul Se A'ala, Kul Se Aula, Kul Ki Jaa(n)<br>
+            Kul Ke Aaqa, Kul Ke Hadi, Kul Ki Shaa(n)</p>
+            <p>Dil Kusha, Dil Kash, Dil Aara, Dil Sitaa(n)<br>
+            Kaan-e-jaan-o-jaan-e-jaan-o-shaan-e-shaa(n)</p>
+            <p>Har Hikayat, Har Kinayat, Har Adaa<br>
+            Har Isharat, Dil Nasheen-o-dil Nishaa(n)</p>
+            <p>Dil De, Dil Ko Jaan, Jaa(n) Ko Noor De<br>
+            Aey Jahaan-e-jaan-o-aey Jaan-e-jahaa(n)</p>
+            <p>Aankh De, Aur Aankh Ko Didaar-e-noor<br>
+            Rooh De Aur Rooh Ko Raah-e-jinaa(n)</p>
+            <p>Allah Allah Yaas Aur Aisi Aas Se<br>
+            Aur Yeh Hazrat Yeh Dar Ye Aastaa(n)</p>
+            <p>Tu Sanaa Ko Hai, Sanaa Teray Liye<br>
+            Hai Sanaa Teri Hi Deegar Daastaa(n)</p>
+            <p>Tu Na Tha Tou Kuch Na Tha, Gar Tu Na Ho<br>
+            Kuch Na Ho, Tu Hi To Hai Jaan-e-jahaa(n)</p>
+            <p>Tu Hai Daata, Aur Auro(n) Se Rajaa<br>
+            Tu Ho Aaqa, Aur Yaad-e-digaraa(n)</p>
+            <p>Jis Tarha Hont Iss Ghazal Se Door Hain<br>
+            Dil Se Yun Hi Door Ho Har Zinn-0-zaa(n)</p>
+            <p>Iltija! Iss Shirk-o-shar Se Door Rakh<br>
+            Ho Raza Tera Hi, Gayr Az Een-o-aa(n)</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-sayyid">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-sayyid">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <h2 class="section-title" id="section-manqabats">Manqabats</h2>
+
+            <!-- MANQABAT 1 (Gause Azam) -->
+            <div id="Astaan" class="naat-block">
+                <h2 class="naat-title">Astaan Hai Ye Kis Shaahe Zeeshan Ka</h2>
+                <!-- Optional: add a Written-by line here when ready -->
+                <audio controls preload="none"><source src="audio-copyrighted/astaan.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-Astaan" tabindex="-1">
+            <p>Allah Re Kya Baargah-e-Gaus-e-jali Hai<br>
+            Gardan Ko Jhukaae Hue Ek Ek Wali Hai</p>
+            <p>Har-gaam Pe Sajde Ki Tamanna Hai Jabee.n Ko<br>
+            Ye Kis Ka Dar-e-naaz Hai ? Ye Kis Ki Gali Hai ?</p>
+            <p>Nabawi Meenh, 'alawi Fasl, Batooli Gulshan<br>
+            Hasani Phool, Husaini Hai Mahakna Tera</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Qalb Haibat Se Larzaa.n Hai Insaan Ka, Marhaba Marhaba !<br>
+            Hai Asar Bazm Par Kis Ke Faizaan Ka, Marhaba Marhaba !<br>
+            Ghar Basaane Meri Chashm-e-weeraan Ka, Marhaba Marhaba !</p>
+            <p>Chaand Nikla Hasan Ke Shabistaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Sar Ki Zeenat 'amaama Hai 'irfaan Ka, Marhaba Marhaba !<br>
+            Jubba Tan Par Muhammad Ke Ehsaan Ka, Marhaba Marhaba !<br>
+            Rang Aankho.n Me.n Zahra Ke Faizaan Ka, Marhaba Marhaba !<br>
+            Roop Chehre Pe Aayaat-e-qur.aan Ka, Marhaba Marhaba !</p>
+            <p>Saj Ke BaiTha Hai Nau-shaah Jeelaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Bazm-e-kaun-o-makaa.n Ko Sajaaya Gaya, Aaj Salle-'ala<br>
+            Saa.ibaa.n Rahmato.n Ka Lagaaya Gaya, Aaj Salle-'ala<br>
+            Ambiya, Auliya Ko Bulaaya Gaya, Aaj Salle-'ala<br>
+            Ibn-e-zahra Ko Dulha Banaaya Gaya, Aaj Salle-'ala</p>
+            <p>'urs Hai Aaj Mahboob-e-sub.haan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Aasmaa.n-manzilat Kis Ka Aiwaan Hai, Waah Kya Shaan Hai !<br>
+            Aaj KHalq-e-KHuda Kis Ki Mehmaan Hai, Waah Kya Shaan Hai !<br>
+            'laa-taKHaf' Kis Ka Mash.hoor Farmaan Hai, Waah Kya Shaan Hai !<br>
+            Bil-yaqee.n Wo Shahanshaah-e-jeelaan Hai, Waah Kya Shaan Hai !</p>
+            <p>Haq Diya Jis Ko Qudrat Ne E'laan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Har Taraf Aaj Rahmat Ki Barsaat Hai, Waah Kya Baat Hai !<br>
+            Aaj Khulne Pe Qufl-e-muhimmaat Hai, Waah Kya Baat Hai !<br>
+            Chaar-soo Jalwa-aaraai-e-zaat Hai, Waah Kya Baat Hai !<br>
+            Koi Bharne Pe Kashkol-e-haajaat Hai, Waah Kya Baat Hai !</p>
+            <p>Jaagne Ko Muqaddar Hai Insaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaa.n Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaa.n Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Koi Mahw-e-fuGaa.n, Koi KHaamosh Hai, Ab Kise Hosh Hai<br>
+            Saaz-e-mutrib Ki Lai NaGma-bardosh Hai, Ab Kise Hosh Hai<br>
+            'aql Hairat Ke Parde Me.n Roo-posh Hai, Ab Kise Hosh Hai<br>
+            Bazm Ki Bazm Masti Dar AaGosh Hai, Ab Kise Hosh Hai</p>
+            <p>Pee Ke SaaGar 'ali Ke KHumistaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Kya Hasee.n Manzar-e-jood-o-ikraam Hai, Daa'wat-e-'aam Hai<br>
+            Ahl-e-dil Ki Nazar Masti-aashaam Hai, Daa'wat-e-'aam Hai<br>
+            Hashr Tak Muddat-e-gardish-e-jaam Hai, Daa'wat-e-'aam Hai<br>
+            Dast-e-jibreel Masroof-e-it'aam Hai, Daa'wat-e-'aam Hai</p>
+            <p>Khaao Sadqa 'ali Shaah-e-mardaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Sham'-e-tauheed Dil Me.n Jala Kar Piyo, Dil Laga Kar Piyo<br>
+            Shaah-e-bat.ha Ki KHairaat Paa Kar Piyo, Dil Laga Kar Piyo<br>
+            NaGma-e-kaasa-e-wasl Gaa Kar Piyo, Dil Laga Kar Piyo<br>
+            Aankh Mehr-e-'ali Se Mila Kar Piyo, Dil Laga Kar Piyo</p>
+            <p>KHud Pilaane Pe Saaqi Hai Jeelaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Hai 'ajab Husn Ka Baankpan Saamne, Ik Chaman Saamne<br>
+            Ahl-e-tat.heer Hai.n KHaima-zan Saamne, Panjtan Saamne<br>
+            Hai Ye Roo-e-hasan Ki Phaban Saamne Ya Hasan Saamne<br>
+            Jalwa-farma Hai.n Gaus-e-zaman Saamne, Zau-figan Saamne</p>
+            <p>Dekhiye Kya Bane Chashm-e-hairaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Gulshan-e-mustafa Ki Phaban Aur Hai, Ye Chaman Aur Hai<br>
+            Shaah-e-abraar Ki Anjuman Aur Hai, Ye Chaman Aur Hai<br>
+            Boo-e-guldasta-e-panjtan Aur Hai, Ye Chaman Aur Hai<br>
+            Shaan-e-aal-e-husain-o-hasan Aur Hai, Ye Chaman Aur Hai</p>
+            <p>Sarmadi Rang Hai Is Gulistaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Faqr Ki Saltanat Turfa-saamaan Hai, Rahmat Aiwaan Hai<br>
+            Is Ke Zer-e-nagee.n Qalb-e-insaan Hai, 'ijz-'unwaan Hai<br>
+            Kis Ka Dast-e-nazar Kaasaa-gardaan Hai, 'aql Hairaan Hai<br>
+            Ik Wali Zeb-e-aurang-e-'irfaan Hai, Waah Kya Shaan Hai</p>
+            <p>Sar Jhuke Hai Yahaa.n Meer-o-sultaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Har Gha.Di Mehrbaa.n Zaat-e-baari Rahe, Faiz Jaari Rahe<br>
+            KHaak-bosi Pe Baad-e-bahaari Rahe, Faiz Jaari Rahe<br>
+            'aalam-e-kaif Me.n Bazm Saari Rahe, Faiz Jaari Rahe<br>
+            BeKHudi Tere Masto.n Pe Taari Rahe, Faiz Jaari Rahe</p>
+            <p>Menh Barasta Rahe Tere Ehsaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>'arsh-e-israar Tak Jis Ki Parwaaz Hai, Turfa-andaaz Hai<br>
+            'ilm-e-laahoot Ka Haasim E'zaaz Hai, Turfa-andaaz Hai<br>
+            Zohd-o-taqwa Me.n Yakta-o-mumtaaz Hai, Turfa-andaaz Hai<br>
+            Aabroo-e-chaman Qaamat-e-naaz Hai, Turfa-andaaz Hai</p>
+            <p>Peer-e-mehr-e-'ali Qutb-e-dauraan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Gol.De Ki Zamee.n Kitni Mas'ood Hai, KHitta-e-jood Hai<br>
+            Ibn-e-maula 'ali Jis Me.n Maujood Hai, KHitta-e-jood Hai<br>
+            Kya Hasee.n Manzar-e-shaan-e-maa'bood Hai, KHitta-e-jood Hai<br>
+            Har Ayaaz Is Ka Ham-dosh-e-mahmood Hai, KHitta-e-jood Hai</p>
+            <p>Auj Paaya Hai Birjees-o-kaiwaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Tere Deewane Haazir Hai.n Sarkaar Me.n, Aaj Darbaar Me.n<br>
+            Sar Jhukaae Janaab-e-guhar-baar Me.n, Aaj Darbaar Me.n<br>
+            Ban Ke Saa.il Teri Bazm-e-anwaar Me.n, Aaj Darbaar Me.n<br>
+            Yusuf-e-misr-e-dil Tere Baazaar Me.n, Aaj Darbaar Me.n</p>
+            <p>Jashn Hai Kya Dil-afroz 'irfaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Dar-ba-dar Muft Ki Thokre.n Khaae Kyu.n, Haath Phailaae Kyu.n<br>
+            Maangne Koo-e-aGyaar Me.n Jaae Kyu.n, Haath Phailaae Kyu.n<br>
+            Us Ke Naamoos-e-Gairat Pe Harf Aae Kyu.n, Haath Phailaae Kyu.n<br>
+            Dil Qanaa'at Ki Zau Se Na Chamkaae Kyu.n, Haath Phailaae Kyu.n</p>
+            <p>Jo Namak-KHwaar Ho Peer-e-peeraan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Shaah-e-jeelaa.n Ki ChaukhaT Salaamat Rahe, Taa-qayaamat Rahe<br>
+            Naqsh-e-paa Ka Chaman Pur-karaamat Rahe, Taa-qayaamat Rahe<br>
+            KHal'at-e-ijtiba Zeb-e-qaamat Rahe, Taa-qayaamat Rahe<br>
+            Sar Pe Waliyo.n Ka Taaj-e-imaamat Rahe, Taa-qayaamat Rahe</p>
+            <p>Silsila Gaus-e-aa'zam Ke Faizaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Waaris-e-KHaatamul-mursalee.n Aap Hai.n, Bil-yaqee.n Aap Hai.n<br>
+            Qasr-e-zahra Ka Naqsh-e-hasee.n Aap Hai.n, Bil-yaqee.n Aap Hai.n<br>
+            Deen-e-barhaq Ke Muhy-o-mu'ee.n Aap Hai.n, Bil-yaqee.n Aap Hai.n<br>
+            Bazm-e-'irfaa.n Ke Masnad-nashee.n Aap Hai.n, Bil-yaqee.n Aap Hai.n</p>
+            <p>Har Wali Tifl Hai Is Dabistaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+            <p>Maz.har-e-zaat-e-rabb-e-qadeer Aap Hai.n, Dast-geer Aap Hai.n<br>
+            Kaarwaan-e-karam Ke Ameer Aap Hai.n, Dast-geer Aap Hai.n<br>
+            Shaah-e-baGdaad Peeraan-e-peer Aap Hai.n, Dast-geer Aap Hai.n<br>
+            Is Naseer-e-hazee.n Ke Naseer Aap Hai.n, Dast-geer Aap Hai.n</p>
+            <p>Koi Ham-sar Nahi.n Aap Ki Shaan Ka, Marhaba Marhaba !</p>
+            <p>Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !<br>
+            Aastaan Hai Ye Kis Shaah-e-zeeshaan Ka, Marhaba Marhaba !</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-Astaan">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-Astaan">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- MANQABAT 2 (Gause Azam) -->
+            <div id="khudakefazl" class="naat-block">
+                <h2 class="naat-title">Khuda Ke Fazl Se Hum Par Hai Saaya Ghous E Azam Ka</h2>
+                <!-- Optional: add a Written-by line here when ready -->
+                <audio controls preload="none"><source src="audio-copyrighted/khudakefazl.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-khudakefazl" tabindex="-1">
+            <p>Khuda Ke Fazl Se Hum Par Hai Saaya Ghous E Azam Ka<br>
+            Humen Dono Jahaan Mein Hai Sahara Ghous E Azam Ka</p>
+            <p>Muhammed Ka Rasoolo Mein Hai Jaise Martaba A'ala<br>
+            Hai Afzal Awliya Me Yun Hi Rutba Ghous E Azam Ka</p>
+            <p>Mureedi La-takhaf Keh Kar Tasalli Di Ghulamo Ko<br>
+            Qayamat Tak Rahe Be-khauf Banda Ghous E Azam Ka</p>
+            <p>Hamari Laaj Kiske Haath Hai Baghdad Wale Ke<br>
+            Musibat Taal Dena Kaam Kiska Ghous E Azam Ka</p>
+            <p>Gaye Ek Waqt Mein Sattar Mureedo Ke Yaha Hazrat<br>
+            Samajh Me Aa Nahi Sakta Muamma Ghous E Azam Ka</p>
+            <p>Luab Apna Chataya Ahmed E Mukhtar Ne Inko<br>
+            To Phir Kaise Na Hota Bolbaala Ghous E Azam Ka</p>
+            <p>Azizo Kar Chuko Taiyaar Jab Mere Janaaze Ko<br>
+            To Likh Dena Kafan Par Naam E Waala Ghous E Azam Ka</p>
+            <p>Farishto Rokte Ho Kyu Mujhe Jannat Me Jaane Se<br>
+            Ye Dekho Haath Mein Daaman Hai Kiska Ghous E Azam Ka</p>
+            <p>Lahad Mein Jab Farishte Mujhse Poochenge To Keh Dunga<br>
+            Tariqa Qadri Hu Naam Leva Ghous E Azam Ka</p>
+            <p>Khudawanda Dua Maqbool Kar Hum Roo Siyaho(n) Ki<br>
+            Gunahon Ko Hamare Baksh Sadqa Ghous E Azam Ka</p>
+            <p>Janaab Ghous Dulha Aur Baraati Auliya Honge<br>
+            Mazaa Dikhlayega Mehshar Me Sehra Ghous E Azam Ka</p>
+            <p>Nida Dega Munaadi Hashr Mein Yun Qadriyo Ko<br>
+            Kidhar Hai Qadri Karle Nazara Ghous E Azam Ka</p>
+            <p>Mukhalif Kya Kare Mera Ke Hai Behad Karam Mujh Par<br>
+            Khuda Ka Rehmatallil A'almeen Ka Ghous E Azam Ka</p>
+            <p>Farishte Madrase Tak Saath Pohchaane Ko Jaate The<br>
+            Ye Darbaar E Ilahi Mein Hai Rutba Ghous E Azam Ka</p>
+            <p>Salasile Jahan Kyu Gar Na Unke Rob Se Kaampe<br>
+            Na Laya Sher Ko Khatre Mein Kutta Ghous E Azam Ka</p>
+            <p>Jameel E Qadri Sau Jaan Ho Qurbaan Murshid Par<br>
+            Banaya Jisne Tujh Jaise Ko Banda Ghous E Azam Ka</p>
+            <div class="version-divider">More Verses</div>
+            <p>Jo Apne Ko Kahe Mera, Muridon Mein Woh Daakhal Hai<br>
+            Yeh Farmaaya Huwa Hai Mere Aaqa, Ghause A’zam Ka</p>
+            <p>Hui Ek Deo Se Ladki Riha Us Naam Leva Ki<br>
+            Parha Jangal Mein Jab Usne Wazifa, Ghause A’zam Ka</p>
+            <p>Rasulullah Ka Dushman Hai Ghause Paak Ka Dushman<br>
+            Rasulullah Ka Pyaara Hai Pyaara, Ghause A’zam Ka</p>
+            <p>Bula Kar Kaafiron Ko Dete Hain Abdaal Ka Rutba<br>
+            Hamesha Josh Par Rehta Hai Dariya, Ghause A’zam Ka</p>
+            <p>Parhi “La Hawla” Aur Shaitaan Ke Dhoke Ko Kiya Ghaarat<br>
+            Uloomo Fazl Se Woh Noor Chamka, Ghause A’zam Ka</p>
+            <p>Rahe Paaband Ehkaam-e Shari’at Ibtida Hi Se<br>
+            Na Choota Shirkhwaari Mein Bhi Roza, Ghause A’zam Ka</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-khudakefazl">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-khudakefazl">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- MANQABAT 3 (Khawaja Garib Nawaz) -->
+            <div id="kursi" class="naat-block">
+                <h2 class="naat-title">Kursi Par Koy Bhi Baithe</h2>
+                <!-- Optional: add a Written-by line here when ready -->
+                <audio controls preload="none"><source src="audio-copyrighted/kursi.mp3" type="audio/mpeg"></audio>
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-kursi" tabindex="-1">
+            <p>Main Gada E Khawaja E Chisht Hoo<br>
+            Mujhe Is Gadai Pe Naaz Hai<br>
+            Mera Naaz Khawaja Pe Kyo Na Ho<br>
+            Mera Khawaja Banda Nawaz Hai</p>
+            <p>Uske Karam Ke Sab Hai Bhikhari<br>
+            Kya Rajaa Maharaja Hai<br>
+            Kursi Par Koi Bhi Baithe Raja To Mera Khawaja Hai<br>
+            Sare Hind Ka Hai Raja Mera Khawaja Maharaja</p>
+            <p>Haidar Ka Ladla Hai Wo Zehra Ka Lal Hai<br>
+            Beshak Mera Moin Muhammad Ki Aal Hai<br>
+            Deewano Ko Kis Baat Ka Aakhir Malal Hai<br>
+            Khawaja Ko Apni Praja Ka Pura Khyal Hai</p>
+            <p>Har Aankh Chahti Hai Ziyarat Moin Ki<br>
+            Har Dil Main Bus Gai Mohabbat Moin Ki<br>
+            Is Sar Zamin E Hind Ki Shaho Ne Kahdiya<br>
+            Mahshar Talak Rahegi Hukumat Moin Ki</p>
+            <p>Hum Garibo Ki Sadao Ne Bulaya Hai Tujhe<br>
+            Hind Ka Shah Muhammad Ne Banaya Hai Tujhe<br>
+            Kese Ayega Koi Harf Hukumat Pe Teri<br>
+            Panjtan Paak Ne Kursi Pe Bithaya Hai Tujhe</p>
+            <p>Pyara Hai Hasnain Ka Beshak Nabi Ki Aal Hai<br>
+            Sanjar Wala Peer Mera Sayyda Ka Laal Hai<br>
+            Mast Hai Mastan Hai Har Hal Me Khush Hal Hai<br>
+            Chishtiya Daman Ko Jo Pakde Wo Mala Maal Hai</p>
+            <p>Tu Dar Badar Ki Thokre Ek Baar Kha Ke Dekh<br>
+            Milta Hai Kya Kisi Se Jara Azma Ke Dekh<br>
+            Tu Jinse Mil Raha Hai Wo Sare Gulam Hai<br>
+            Raja Ko Dekhna Hai To Ajmer Ja Ke Dekh</p>
+            <p>Dar E Khwaja Pe Sawali Ko Khada Rehne Do<br>
+            Sar Nadamat Se Jhuka Hai Toh Jhuka Rehne Do<br>
+            Mujko Mil Jaaye Ga Sadka Mai Chala Jaunga<br>
+            Kasa E Dil Mera Kadmo Me Pada Rehne Do</p>
+            <p>Khud Hi Farmayenge Mujrim Pe Woh Rehmat Ki Nazar<br>
+            Mujko Khwaja Ki Adalat Me Pada Rehne Do</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-kursi">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-kursi">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <h2 class="section-title" id="section-salam">Salam</h2>
+
+            <!-- SALAM 1 (Mustafa Jaan E Rahmat) -->
+            <div id="mustafajane" class="naat-block">
+                <h2 class="naat-title">Mustafa Jaan E Rahmat (Short Version)</h2>
+                <!-- Optional: add a Written-by line here when ready -->
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-mustafajane" tabindex="-1">
+            <p>Mustafa Jane Rehmat Pe Lakhon Salam<br>
+            Sham-e Bazme Hidayat Pe Lakhon Salam</p>
+            <p>Jis Suhaani Ghadi Chamka Taiba Ka Chand<br>
+            Us Dil Afroz Saa’at Pe Lakhon Salam</p>
+            <p>Shehre Yaare Iram Tajdaare Haram<br>
+            Nau Bahaar E Shafa’at Pe Laakho(n) Salaam</p>
+            <p>Jis Taraf Uth Gayi Dam Mein Dam Aagaya<br>
+            Us Nigah E Inaayat Pe Lakhon Salaam</p>
+            <p>Ghous E Azam Imam Ut Tuqa Wannuqa X3<br>
+            Jalwa E Shan E Qudrat Pe Lakhon Salam</p>
+            <p>Kaash Mehshar Me Jab Unki Aamad Ho Aur<br>
+            Bheje Sab Unki Shauqat Pe Lakhon Salaam</p>
+            <p>Shab E Asra Ke Dulha Pe Da-im Durood<br>
+            Nausha E Bazme Jannat Pe Laakho(n) Salaam</p>
+            <p>Fathe Baab E Nubuvvat Pe Behad Durood<br>
+            Khatme Daur E Risalat Pe Laakho(n) Salaam</p>
+            <p>Hum Ghareebo Ke Aaqa Pe Behad Durood<br>
+            Hum Faqeeri Ki Sarwat Pe Laakho(n) Salaam</p>
+            <p>Duur O Nazdeek Ke Sunne Waale Wo Kaan<br>
+            Kaan E La’le Karamat Pe Laakho(n) Salaam</p>
+            <p>Ek Mera Hi Rehmat Me D’awa Nahi<br>
+            Shah Ki Saari Ummat Pe Laakho(n) Salaam</p>
+            <p>Jis Ki Tasqeen Se Rote Huwe Hans Pare<br>
+            Us Tabassum Ki Aadat Peh Lakho Salam</p>
+            <p>Daal Di Qalb Me Azmate Mustafa<br>
+            Sayyadi Ala Hazrat Peh Lakho Salam</p>
+            <p>Mujh Se Khidmat Ke Qudsi Kahe Haan Raza<br>
+            Mustafa Jane Rehmat Pe Lakhon Salam</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-mustafajane">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-mustafajane">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <!-- SALAM 2 (Ya Nabi Salam Alaika) -->
+            <div id="yanabisalam" class="naat-block">
+                <h2 class="naat-title">Ya Nabi Salam Alaika (Short Version)</h2>
+                <!-- Optional: add a Written-by line here when ready -->
+                <div class="lyrics-wrap" data-state="collapsed">
+                    <div class="lyrics-clip">
+                        <div class="lyrics" id="lyrics-yanabisalam" tabindex="-1">
+            <p>Ya Nabi Salaam Alaika<br>
+            Ya Rasool Salaam Alaika<br>
+            Ya Habib Salaam Alaika<br>
+            Salawatullah Alaika</p>
+            <p>Aap Ka Tashreef Lana<br>
+            Waqt Bhi Kitna Suhana<br>
+            Jagmaga Utha Zamana<br>
+            Hoore Bhi Gati Thi Tarana</p>
+            <p>Ya Nabi Salaam Alayka<br>
+            Ya Rasool Salaam Alayka<br>
+            Ya Habib Salaam Alayka<br>
+            Salawatullah Alayka</p>
+            <p>Rehmaton Ke Taj Wale<br>
+            Do Jahan Ke Raj Wale<br>
+            Arsh Ki Mairaj Wale<br>
+            Aasiyon Ki Laaj Wale</p>
+            <p>Ya Nabi Salam Alaika<br>
+            Ya Rasool Salam Alaika<br>
+            Ya Habib Salam Alaika<br>
+            Salawatullah Alaika</p>
+            <p>Hashar Mein Sarkar Aana<br>
+            Mere Ayb Ko Chupaana<br>
+            Apne Rab Se Bakhsh Wanna<br>
+            Saath-E-Jannat Mein Basaana</p>
+            <p>Ya Nabi Salaam Alayka<br>
+            Ya Rasool Salaam Alayka<br>
+            Ya Habib Salaam Alayka<br>
+            Salawatullah Alayka</p>
+            <p>Waasta Gaus Ul Wara Ka<br>
+            Hazrat-e-Ahmad Raza Ka<br>
+            Aur Mere Murshid Piya Ka<br>
+            Rukh Badal Do Har Bala Ka</p>
+            <p>Ya Nabi Salaam Alayka<br>
+            Ya Rasool Salaam Alayka<br>
+            Ya Habib Salaam Alayka<br>
+            Salawatullah Alayka</p>
+            <p>As-Tufail E Ghous E Azam<br>
+            Ganj Bakhsh E Faiz E Azam<br>
+            Sadqa E Imam E Azam<br>
+            Door Hoon Sab Hi Ke Ranj O Gham</p>
+            <p>Ya Nabi Salam Alayka<br>
+            Ya Rasool Salam Alayka<br>
+            Ya Habib Salam Alayka<br>
+            Salawatullah Alayka</p>
+                        </div>
+                    </div>
+                    <div class="lyrics-actions">
+                        <button type="button" class="lyrics-btn lyrics-more" aria-controls="lyrics-yanabisalam">Show Full Lyrics <i class="chev" aria-hidden="true"></i></button>
+                        <button type="button" class="lyrics-btn lyrics-less" aria-controls="lyrics-yanabisalam">Hide Lyrics <i class="chev" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    var root = document.documentElement;
+    var layout = document.getElementById('contentLayout');
+    var navBtn = document.getElementById('btn-toggle-index');
+    var THEME_KEY = 'naatbook-theme';
+
+    function isMobile() { return root.getAttribute('data-view') === 'mobile'; }
+
+    /* ---------------------------------------------------------------
+       Themes
+       --------------------------------------------------------------- */
+    function setTheme(theme, save) {
+        root.setAttribute('data-theme', theme);
+        document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
+            b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-btn') === theme));
+        });
+        if (save) { try { localStorage.setItem(THEME_KEY, theme); } catch (e) {} }
+    }
+
+    /* ---------------------------------------------------------------
+       Navigation index open / close
+       --------------------------------------------------------------- */
+    function setNavOpen(open) {
+        layout.classList.toggle('sidebar-collapsed', !open);
+        navBtn.setAttribute('aria-expanded', String(open));
+        navBtn.textContent = (open ? '📂 Hide' : '📂 Show') + ' Navigation Index';
+    }
+
+    /* ---------------------------------------------------------------
+       Mobile / Desktop view
+       --------------------------------------------------------------- */
+    function setView(view, initial) {
+        // Remember where you are in the book (which naat, and how far into it)
+        // so the page doesn't jump away when the layout changes.
+        var anchor = null, frac = 0;
+        var REF = 80;   // px below the top of the screen
+        if (!initial) {
+            var blocks = document.querySelectorAll('.naat-block');
+            for (var i = 0; i < blocks.length; i++) {
+                var r = blocks[i].getBoundingClientRect();
+                if (r.bottom > REF) { anchor = blocks[i]; frac = (REF - r.top) / r.height; break; }
+            }
+            root.classList.add('no-transition');
+        }
+
+        root.setAttribute('data-view', view);
+        document.getElementById('btn-mobile').classList.toggle('active', view === 'mobile');
+        document.getElementById('btn-desktop').classList.toggle('active', view === 'desktop');
+        document.getElementById('btn-mobile').setAttribute('aria-pressed', String(view === 'mobile'));
+        document.getElementById('btn-desktop').setAttribute('aria-pressed', String(view === 'desktop'));
+        setNavOpen(view === 'desktop');
+        layoutLyrics();
+
+        if (!initial) {
+            if (anchor) {
+                var r2 = anchor.getBoundingClientRect();
+                window.scrollBy({ top: r2.top - (REF - frac * r2.height), behavior: 'instant' });
+            }
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () { root.classList.remove('no-transition'); });
+            });
+        }
+    }
+
+    /* ---------------------------------------------------------------
+       Accordion (nested categories)
+       --------------------------------------------------------------- */
+    function toggleAcc(head) {
+        var item = head.parentElement;
+        var open = !item.classList.contains('open');
+        item.classList.toggle('open', open);
+        head.setAttribute('aria-expanded', String(open));
+    }
+
+    /* ---------------------------------------------------------------
+       Lyrics preview: first 4 lines + half of the 5th
+       --------------------------------------------------------------- */
+    var wraps = Array.prototype.slice.call(document.querySelectorAll('.lyrics-wrap'));
+
+    // Height (px) of 4 full lines plus half of the 5th, or 0 if the naat is too short
+    function previewHeight(wrap) {
+        var clip = wrap.querySelector('.lyrics-clip');
+        var lyrics = wrap.querySelector('.lyrics');
+        var walker = document.createTreeWalker(lyrics, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (n) {
+                if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                if (n.parentElement.closest('.version-divider')) return NodeFilter.FILTER_REJECT;
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+        var node = null;
+        for (var i = 0; i < 5; i++) node = walker.nextNode();
+        if (!node) return 0;
+
+        var range = document.createRange();
+        range.selectNodeContents(node);
+        var rect = range.getClientRects()[0];
+        if (!rect) return 0;
+
+        var h = Math.round(rect.top - clip.getBoundingClientRect().top + rect.height / 2);
+        return (lyrics.scrollHeight - h < 40) ? 0 : h;
+    }
+
+    // Reads first, writes second: one layout pass for all naats
+    function layoutLyrics() {
+        var heights = wraps.map(previewHeight);
+        wraps.forEach(function (wrap, i) {
+            var clip = wrap.querySelector('.lyrics-clip');
+            var h = heights[i];
+            if (!h) {
+                wrap.dataset.state = 'static';
+                clip.style.maxHeight = 'none';
+                return;
+            }
+            clip.dataset.preview = h;
+            if (wrap.dataset.state === 'static') wrap.dataset.state = 'collapsed';
+            if (wrap.dataset.state === 'collapsed') clip.style.maxHeight = h + 'px';
+        });
+    }
+
+    function afterHeightTransition(clip, done) {
+        var finished = false;
+        function end(e) {
+            if (finished) return;
+            if (e && (e.target !== clip || e.propertyName !== 'max-height')) return;
+            finished = true;
+            clip.removeEventListener('transitionend', end);
+            clearTimeout(timer);
+            done();
+        }
+        var timer = setTimeout(end, 650);   // fallback if no transition runs
+        clip.addEventListener('transitionend', end);
+    }
+
+    function expandLyrics(wrap) {
+        var clip = wrap.querySelector('.lyrics-clip');
+        var token = wrap._token = {};
+        clip.classList.add('is-animating');
+        wrap.dataset.state = 'expanded';
+        clip.style.maxHeight = clip.scrollHeight + 'px';
+        wrap.querySelector('.lyrics').focus({ preventScroll: true });
+        afterHeightTransition(clip, function () {
+            if (wrap._token !== token) return;
+            clip.style.maxHeight = 'none';           // let it resize freely afterwards
+            clip.classList.remove('is-animating');
+        });
+    }
+
+    function collapseLyrics(wrap) {
+        var clip = wrap.querySelector('.lyrics-clip');
+        var block = wrap.closest('.naat-block');
+        var token = wrap._token = {};
+        var topBefore = block.getBoundingClientRect().top;
+
+        clip.classList.add('is-animating');
+        clip.style.maxHeight = clip.offsetHeight + 'px'; // pin the current height as the start
+        void clip.offsetHeight;                          // commit it before changing
+        wrap.dataset.state = 'collapsed';
+        clip.style.maxHeight = clip.dataset.preview + 'px';
+        wrap.querySelector('.lyrics-more').focus({ preventScroll: true });
+
+        if (topBefore < 0) block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        afterHeightTransition(clip, function () {
+            if (wrap._token !== token) return;
+            clip.classList.remove('is-animating');
+        });
+    }
+
+    /* ---------------------------------------------------------------
+       Events (one delegated listener)
+       --------------------------------------------------------------- */
+    document.addEventListener('click', function (e) {
+        var el = e.target.closest('button, a');
+        if (!el) return;
+
+        if (el.hasAttribute('data-theme-btn')) {
+            setTheme(el.getAttribute('data-theme-btn'), true);
+        } else if (el.hasAttribute('data-view-btn')) {
+            var v = el.getAttribute('data-view-btn');
+            if (v !== root.getAttribute('data-view')) setView(v, false);
+        } else if (el === navBtn) {
+            setNavOpen(layout.classList.contains('sidebar-collapsed'));
+        } else if (el.classList.contains('acc-head')) {
+            toggleAcc(el);
+        } else if (el.classList.contains('lyrics-more')) {
+            expandLyrics(el.closest('.lyrics-wrap'));
+        } else if (el.classList.contains('lyrics-less')) {
+            collapseLyrics(el.closest('.lyrics-wrap'));
+        } else if (el.classList.contains('nav-link') && isMobile()) {
+            setNavOpen(false);
+        }
+    });
+
+    var lastWidth = window.innerWidth, resizeTimer;
+    window.addEventListener('resize', function () {
+        if (window.innerWidth === lastWidth) return;   // ignore mobile URL-bar resizes
+        lastWidth = window.innerWidth;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(layoutLyrics, 120);
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutLyrics);
+
+    /* ---------------------------------------------------------------
+       Init (view + theme were already set by the <head> script)
+       --------------------------------------------------------------- */
+    setTheme(root.getAttribute('data-theme'), false);
+    setView(root.getAttribute('data-view'), true);
+})();
+
+</script>
+</body>
+</html>
