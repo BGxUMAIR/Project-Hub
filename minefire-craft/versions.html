@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MineFire Craft - Versions</title>
+<script>try{var t=localStorage.getItem('hub.theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'night':'day');document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{--bg:#F8FAFC;--card:#D9EAFD;--border:#BCCCDC;--sub:#5b6776;--text:#0F172A;--btn-bg:#0F172A;--btn-text:#F8FAFC;--serif:'Playfair Display',Georgia,'Times New Roman',serif;--sans:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+[data-theme=night]{--bg:#0F172A;--card:#1E293B;--border:#334155;--sub:#9AA6B2;--text:#F8FAFC;--btn-bg:#F8FAFC;--btn-text:#0F172A}
+*{box-sizing:border-box;margin:0}html{color-scheme:light}[data-theme=night]{color-scheme:dark}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;transition:background .4s,color .4s}
+:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.wrap{width:min(860px,100% - 40px);margin-inline:auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0}
+.brand{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--text);text-decoration:none}
+.theme{display:inline-flex;align-items:center;gap:10px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:8px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+h1,h2{font-family:var(--serif);font-weight:600;line-height:1.15}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);margin-top:40px}.lede{margin-top:16px;color:var(--sub);max-width:56ch}
+.ver{margin-top:40px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px}
+.ver h2{font-size:1.8rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tag{font-family:var(--sans);font-size:.75rem;font-weight:600;background:var(--btn-bg);color:var(--btn-text);border-radius:999px;padding:4px 12px}
+.ver ul{margin:16px 0 0 20px}.ver li{margin-top:6px}
+.btn{display:inline-block;margin:24px 12px 0 0;background:var(--btn-bg);color:var(--btn-text);text-decoration:none;font-weight:600;padding:12px 24px;border-radius:999px}
+.btn.alt{background:none;color:var(--text);border:1px solid var(--border)}.btn:hover{opacity:.85}
+footer{border-top:1px solid var(--border);margin-top:64px;padding:24px 0 40px;color:var(--sub);font-size:.9rem}footer a{color:var(--text);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../index.html#projects">&larr; Project Hub</a><button class="theme" id="theme" aria-pressed="false"><span id="lab">Day mode</span></button></header>
+  <h1>MineFire Craft</h1>
+  <p class="lede">Version history. Only one version has been released so far.</p>
+  <article class="ver">
+    <h2>Version 1.0 <span class="tag">Latest</span></h2>
+    <ul>
+      <li>Voxel battle royale with 20 players: you against 19 AI bots.</li>
+      <li>Two 200x200 maps: Block Bermuda and Desert Purgatory.</li>
+      <li>Plane drop with parachute, airdrops, loot crates and a shrinking blue zone.</li>
+      <li>Guns (AK-47, UMP, MP5, MP40), tools, mining, and instant walls, ramps and blocks.</li>
+      <li>Game modes: Classic and Training (Ranked is coming soon).</li>
+      <li>Three camera views on F5, crouch and sprint, custom keys on desktop and custom controls on mobile.</li>
+      <li>Achievements, a first-time tutorial, and sound effects with a Booyah victory animation.</li>
+    </ul>
+    <a class="btn" href="./index.html">Play Version 1.0</a><a class="btn alt" href="https://github.com/BGxUMAIR/Project-Hub" target="_blank" rel="noopener">Source on GitHub</a>
+  </article>
+  <footer>Built by hand with vanilla HTML, CSS and JavaScript.</footer>
+</div>
+<script>
+const b=document.getElementById('theme'),l=document.getElementById('lab');
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('hub.theme',t)}catch(e){}b.setAttribute('aria-pressed',t==='night');l.textContent=t==='night'?'Night mode':'Day mode'}
+b.onclick=()=>setTheme(document.documentElement.dataset.theme==='night'?'day':'night');setTheme(document.documentElement.dataset.theme);
+</script>
+</body>
+</html>
