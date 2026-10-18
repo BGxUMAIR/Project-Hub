@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found - Project Hub</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F172A'/%3E%3Cpath d='M18 46L32 18l14 28z' fill='none' stroke='%2337d9c0' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="robots" content="noindex">
+<script>
+/* apply saved theme before first paint to avoid a flash */
+try{var t=localStorage.getItem('hub.theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'night':'day');document.documentElement.dataset.theme=t}catch(e){}
+</script>
+<style>
+:root{--bg:#F8FAFC;--card:#D9EAFD;--border:#BCCCDC;--sub:#5f6b7a;--text:#0F172A;--pill-bg:#0F172A;--pill-on:#D9EAFD;--pill-on-text:#0F172A;--pill-text:#9AA6B2;--btn-bg:#0F172A;--btn-text:#F8FAFC;--a1:#8b7bff;--a2:#37d9c0;--a3:#ff8fc4;--glass:rgba(255,255,255,.55);
+--serif:'Playfair Display',Georgia,'Times New Roman',serif;--sans:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+[data-theme=night]{--bg:#0F172A;--card:#1E293B;--border:#334155;--sub:#9AA6B2;--text:#F8FAFC;--pill-bg:#1E293B;--pill-on:#F8FAFC;--pill-on-text:#0F172A;--pill-text:#9AA6B2;--btn-bg:#F8FAFC;--btn-text:#0F172A;--glass:rgba(30,41,59,.6)}
+*{box-sizing:border-box;margin:0}html{color-scheme:light;overflow-x:hidden}[data-theme=night]{color-scheme:dark}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+p,h1,h2,h3{overflow-wrap:anywhere}
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(90px);opacity:.38;animation:fl 18s ease-in-out infinite alternate}
+.aurora i:nth-child(1){background:var(--a1);left:-12vmax;top:-12vmax}.aurora i:nth-child(2){background:var(--a2);right:-14vmax;top:18vh;animation-delay:-6s}.aurora i:nth-child(3){background:var(--a3);left:22vw;bottom:-22vmax;animation-delay:-11s}
+[data-theme=night] .aurora i{opacity:.22}
+@keyframes fl{to{transform:translate(6vmax,4vmax) scale(1.15)}}
+.wrap{width:min(1040px,100% - 32px);margin-inline:auto}
+.btn{display:inline-block;background:var(--btn-bg);color:var(--btn-text);text-decoration:none;font-weight:600;padding:12px 24px;border-radius:999px;border:0;font:inherit;font-weight:600;cursor:pointer;transition:opacity .3s,transform .25s}
+.btn:hover{opacity:.88}
+.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.toasts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:100;width:min(420px,100% - 24px);pointer-events:none}
+.toast{display:flex;gap:10px;align-items:flex-start;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:.92rem;box-shadow:0 10px 30px #0002;animation:tin .35s cubic-bezier(.2,.8,.2,1)}
+.toast::before{content:'';flex:none;width:10px;height:10px;border-radius:50%;margin-top:7px;background:#2fbf71}.toast.err::before{background:#ee4d5f}
+.toast.out{opacity:0;transform:translateY(8px);transition:.3s}
+@keyframes tin{from{opacity:0;transform:translateY(14px) scale(.96)}}
+footer{border-top:1px solid var(--border);padding:24px 0 40px;color:var(--sub);font-size:.9rem}
+footer a{color:var(--text);font-weight:600;text-underline-offset:3px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.logo svg path{stroke-dashoffset:0!important}}
+
+body{display:grid;place-items:center;text-align:center;padding:24px}
+h1{font-family:var(--serif);font-size:clamp(6rem,26vw,13rem);line-height:1;letter-spacing:-.02em;animation:fb 5s ease-in-out infinite}
+@keyframes fb{50%{transform:translateY(-12px) rotate(-1.5deg)}}
+.g{background:linear-gradient(100deg,var(--a1),var(--a2),var(--a3),var(--a1));background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sh 6s linear infinite}
+@keyframes sh{to{background-position:250% 0}}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,4vw,2rem);margin-top:6px}p{margin:12px auto 0;max-width:44ch;color:var(--sub)}
+.act{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:28px}.btn{margin:0}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<main>
+  <h1 class="g" aria-label="404">404</h1>
+  <h2>This page wandered off the map.</h2>
+  <p>The link may be old or mistyped. Head back to the hub or jump into a project.</p>
+  <div class="act"><a class="btn" href="/">Back to the hub</a><a class="btn ghost" href="/#projects">See projects</a><a class="btn ghost" href="/minefire-craft/">Play MineFire Craft</a></div>
+  <p style="margin-top:36px;font-size:.9rem">&copy; <span id="yr">2026</span> BGxUMAIR</p>
+</main>
+<script>document.getElementById('yr').textContent=new Date().getFullYear()</script>
+</body>
+</html>
